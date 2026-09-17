@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadoras clínicas — Dra. Omidres Pérez de Carvelli</title>
+<meta name="description" content="Herramientas de cribado y estratificación en salud metabólica. Uso educativo; no sustituyen la consulta médica.">
+<style>
+:root{
+  --bg:#F4F5F9; --surface:#FFFFFF; --surface-2:#EEF0F6; --line:#D8DCE8;
+  --ink:#181F4D; --ink-2:#3C4470; --muted:#6B7290;
+  --accent:#EA5300; --accent-ink:#FFFFFF;
+  --navy:#181F4D; --navy-ink:#FFFFFF;
+  --shadow:0 1px 2px rgba(24,31,77,.06), 0 8px 24px rgba(24,31,77,.08);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1330; --surface:#1A1F45; --surface-2:#232A58; --line:#343C6E;
+  --ink:#F2F3FA; --ink-2:#C9CDE3; --muted:#9AA1C4;
+  --accent:#FF7A33; --accent-ink:#1A0A00;
+  --navy:#2A3270; --navy-ink:#F2F3FA;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1330; --surface:#1A1F45; --surface-2:#232A58; --line:#343C6E;
+  --ink:#F2F3FA; --ink-2:#C9CDE3; --muted:#9AA1C4;
+  --accent:#FF7A33; --accent-ink:#1A0A00;
+  --navy:#2A3270; --navy-ink:#F2F3FA;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.55}
+h1,h2,h3{margin:0;letter-spacing:-.01em;text-wrap:balance;line-height:1.18}
+h1{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:800}
+h2{font-size:1.15rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.brandbar{background:var(--navy);color:var(--navy-ink)}
+.brandbar .wrap{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;padding:10px 20px;font-size:.9rem}
+.brandbar .tag{color:#FFB07A;font-weight:700}
+header{padding-block:38px 24px}
+header .eyebrow{color:var(--accent)}
+header h1{margin-top:6px}
+header p{max-width:60ch;color:var(--ink-2);margin-top:12px}
+.list{display:flex;flex-direction:column;gap:16px;padding-bottom:8px}
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+.tool h2{margin-bottom:6px}
+.tool .what{color:var(--ink-2);font-size:.97rem}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.go{display:inline-block;margin-top:4px;text-decoration:none;font-weight:700;font-size:.98rem;
+  background:var(--accent);color:var(--accent-ink);padding:11px 20px;border-radius:10px}
+.go:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.soon{border-style:dashed;box-shadow:none;background:transparent}
+.soon .go{background:var(--surface-2);color:var(--muted);pointer-events:none}
+.nota{margin-top:26px;border-left:3px solid var(--accent);padding:4px 0 4px 16px;color:var(--ink-2);font-size:.95rem;max-width:66ch}
+footer{margin-top:34px;border-top:1px solid var(--line);padding-block:22px 44px;color:var(--muted);font-size:.86rem}
+footer p{max-width:72ch;margin-bottom:10px}
+</style></head><body>
+
+<div class="brandbar"><div class="wrap">
+  <div><b>Dra. Omidres Pérez de Carvelli</b> · Internista · Endocrinóloga</div>
+  <div class="tag">#HagamosViralLaSalud</div>
+</div></div>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Salud metabólica</div>
+  <h1>Calculadoras clínicas</h1>
+  <p>Herramientas de cribado y estratificación, de acceso libre, para pacientes y profesionales de la salud. Funcionan en el navegador, sin conexión y sin enviar ningún dato: todo el cálculo ocurre en tu dispositivo.</p>
+</header>
+
+<main class="list">
+
+  <article class="tool">
+    <h2>Fenotipos de obesidad</h2>
+    <p class="what">Estima a qué perfil de conducta alimentaria se aproxima tu patrón. Incluye dos instrumentos: el marco de cuatro fenotipos de Acosta (Mayo Clinic) y la escala EFCA, validada en español. Confirma primero la adiposidad con criterios ADA 2026 y señala cuándo conviene valoración médica antes de iniciar cambios.</p>
+    <div class="meta">
+      <span class="chip">Modo paciente y profesional</span>
+      <span class="chip">Instrumento validado</span>
+      <span class="chip">Adultos</span>
+    </div>
+    <a class="go" href="fenotipos-obesidad/">Abrir calculadora</a>
+  </article>
+
+  <article class="tool soon">
+    <h2>IMC y circunferencia de cintura</h2>
+    <p class="what">Clasificación del exceso de adiposidad según los Estándares de Cuidado en Sobrepeso y Obesidad 2026 de la ADA, con estadificación de Edmonton y umbrales ajustados para origen asiático.</p>
+    <div class="meta"><span class="chip">En preparación</span></div>
+    <a class="go" href="#">Próximamente</a>
+  </article>
+
+</main>
+
+<p class="nota"><b>Ninguna de estas herramientas diagnostica.</b> Estiman a partir de datos que tú introduces y sirven para preparar la conversación clínica, nunca para sustituirla. Cada una declara en pantalla sus limitaciones metodológicas.</p>
+
+<footer>
+  <p>Contenido bajo licencia <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es">CC BY-NC-SA 4.0</a>. Ver <a href="LICENSE.md">LICENSE.md</a> para las fuentes y sus condiciones.</p>
+  <p>La obesidad es una enfermedad crónica y cada persona merece un plan individual, sin juicios ni estigma. Para diagnóstico y tratamiento, consulta con la Dra. Omidres Pérez de Carvelli o con tu profesional de salud.</p>
+</footer>
+</div>
+</body></html>
