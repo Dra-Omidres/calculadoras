@@ -13,6 +13,7 @@ ocurre en el navegador; no se almacena ni se transmite ningún dato.
 ```
 index.html                       Portada con el listado de herramientas
 fenotipos-obesidad/index.html    Fenotipos de obesidad (Acosta + escala EFCA)
+magnesio/index.html              Ingesta de magnesio e Índice de depleción (MDS)
 LICENSE.md                       Licencia y fuentes
 ```
 
@@ -43,6 +44,29 @@ para guiar tratamiento.
 Además, **la EFCA no es la versión en español del modelo de Acosta**: son dos
 taxonomías distintas, de desarrollo independiente. La herramienta lo advierte de
 forma explícita.
+
+## Ingesta de magnesio
+
+El magnesio sérico no refleja el intracelular, que supone más del 99 % del
+magnesio corporal (DiNicolantonio et al., *Open Heart* 2018). La herramienta
+estima dos cosas que sí pueden estimarse:
+
+- **Ingesta.** Cuestionario de frecuencia de 43 alimentos habituales en
+  Latinoamérica, con contenido de magnesio y pesos de medidas caseras de
+  **USDA SR28**. Compara la ingesta total con el EAR (probabilidad de
+  inadecuación) y con la RDA, según Barr, Murphy y Poos (2002).
+- **Pérdidas.** Índice de depleción de magnesio (Fan et al., *J Nutr* 2021),
+  de 0 a 5 puntos: diurético, inhibidor de bomba de protones, alcohol y eGFR.
+- **Seguridad.** Alerta si el magnesio de suplementos y fármacos supera el UL
+  de 350 mg/día, o si se usa magnesio con la función renal disminuida.
+
+### Lo que esta herramienta no es
+
+No mide el magnesio celular ni el corporal total. El cuestionario **no está
+validado**. El MDS tuvo una discriminación modesta en su validación (AUC 0,63).
+Cubre solo a **adultos de 19 años o más**, sin embarazo ni lactancia: los
+valores de referencia de esos grupos no se pudieron verificar en fuentes
+primarias y no se estiman.
 
 ## Licencia
 
