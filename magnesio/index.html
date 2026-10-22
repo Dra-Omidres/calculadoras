@@ -329,6 +329,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
  "Fan L, Zhu X, Zhang X, Salvador S, Zhang X, Shrubsole MJ, et al. Magnesium depletion score and mortality in individuals with metabolic dysfunction associated steatotic liver disease over a median follow-up of 26 years. <i>Nutrients</i>. 2025;17(2):244. <a href=\"https://doi.org/10.3390/nu17020244\">doi:10.3390/nu17020244</a>. Fuente de los EAR.",
  "Omofuma OO, Fang D, Yell N, Falomo O, Liu J, Steck SE. Trends in reported calcium and magnesium intake from diet and supplements by demographic factors: NHANES, 2003-2018. <i>J Acad Nutr Diet</i>. 2024;124(10):1288-1301.e5. <a href=\"https://doi.org/10.1016/j.jand.2024.04.017\">doi:10.1016/j.jand.2024.04.017</a>. Confirma los EAR.",
  "Costello R, Rosanoff A, Nielsen F, West C. Perspective: Call for re-evaluation of the tolerable upper intake level for magnesium supplementation in adults. <i>Adv Nutr</i>. 2023;14(5):973-82. <a href=\"https://doi.org/10.1016/j.advnut.2023.06.008\">doi:10.1016/j.advnut.2023.06.008</a>. Fuente del UL.",
+ "Costello RB, Fan Z, Wallace TC. Magnesium depletion score as an indicator of health risk and nutritional status: a scoping review. <i>Nutrients</i>. 2025;17(20):3286. <a href=\"https://doi.org/10.3390/nu17203286\">doi:10.3390/nu17203286</a>. Fuente del punto de corte (MDS &gt; 2).",
  "Tian Z, Qu S, Chen Y, Fang J, Song X, He K, et al. Associations of the magnesium depletion score and magnesium intake with diabetes among US adults: NHANES 2011-2018. <i>Epidemiol Health</i>. 2024;46:e2024020. <a href=\"https://doi.org/10.4178/epih.e2024020\">doi:10.4178/epih.e2024020</a>",
  "Xing L, Gong Y, Liao G, Wang L, Chen L. Association between magnesium depletion score and all-cause and cause-specific mortality in patients with diabetic kidney disease. <i>Diabetol Metab Syndr</i>. 2025;17(1):130. <a href=\"https://doi.org/10.1186/s13098-025-01688-7\">doi:10.1186/s13098-025-01688-7</a>. Definición operativa de los componentes del MDS.",
  "U.S. Department of Agriculture, Agricultural Research Service. USDA National Nutrient Database for Standard Reference, Release 28. 2016. Consultada a partir de los archivos originales (FOOD_DES, NUT_DATA, WEIGHT), con verificación cruzada contra una segunda copia independiente."
@@ -437,9 +438,10 @@ body[data-mode="pro"] .pro-inline{display:inline}
     else { cls = "Ingesta probablemente suficiente"; tone = "ok";
       why = "Tu ingesta estimada alcanza la cantidad recomendada para tu grupo. Recuerda que el cuestionario solo aproxima lo que comes."; }
 
-    var mdsAlto = m.total >= 2;
-    var mdsTxt = m.total === 0 ? "Bajo" : (m.total === 1 ? "Intermedio" : "Elevado");
-    var mdsTone = m.total === 0 ? "ok" : (m.total === 1 ? "warn" : "high");
+    // Punto de corte: MDS > 2 (es decir, 3 o más), el usado para indicar déficit de magnesio (Costello, Fan y Wallace 2025)
+    var mdsAlto = m.total >= 3;
+    var mdsTxt = m.total === 0 ? "Bajo" : (m.total <= 2 ? "Intermedio" : "Elevado");
+    var mdsTone = m.total === 0 ? "ok" : (m.total <= 2 ? "warn" : "high");
     var bajo = req ? total < req.ear : null;
 
     var h = "";
@@ -498,7 +500,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
     h += '<div class="section"><h3>Cómo se combinan los dos resultados</h3>';
     h += '<p class="hint" style="margin-top:6px">En el estudio original, la asociación del índice con inflamación y mortalidad apareció sobre todo en quienes comían menos magnesio del requerimiento promedio.</p>';
     h += '<div class="matrix">' +
-      '<div></div><div class="h">Índice 0–1</div><div class="h">Índice 2 o más</div>' +
+      '<div></div><div class="h">Índice 0–2</div><div class="h">Índice 3 o más</div>' +
       '<div class="h">Ingesta ≥ promedio</div>' + cel(!bajo && !mdsAlto, "Situación favorable", "Mantén tu alimentación.") + cel(!bajo && mdsAlto, "Vigilar pérdidas", "Comenta tus factores de pérdida en consulta.") +
       '<div class="h">Ingesta &lt; promedio</div>' + cel(bajo && !mdsAlto, "Mejorar la alimentación", "Aumenta los alimentos ricos en magnesio.") + cel(bajo && mdsAlto, "Prioridad de consulta", "Ingesta baja y pérdidas aumentadas: conviene valoración médica.") +
       '</div></div>';
@@ -558,7 +560,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
       '<tr><td>eGFR 60–90 ml/min/1,73 m²</td><td>1</td></tr>' +
       '<tr><td>eGFR &lt; 60 ml/min/1,73 m²</td><td>2</td></tr>' +
       '<tr><td>Consumo elevado de alcohol: &gt; 1 bebida/día (mujer) o &gt; 2 bebidas/día (hombre); 1 bebida ≈ 14 g de etanol</td><td>1</td></tr>' +
-      '</table></div><p class="hint" style="margin-top:8px">Rango de 0 a 5. Fan et al. (<i>J Nutr</i> 2021) lo validaron frente a la prueba de tolerancia al magnesio en 77 adultos: AUC de 0,63 (IC 95 %: 0,50–0,76) para el modelo con MDS, edad y sexo, frente a 0,53 para el magnesio sérico solo. <b>Es una discriminación modesta.</b> Los estudios posteriores agrupan el puntaje de forma distinta (0 / 1 / 2 / ≥3; o 0, 1, ≥2). Esta herramienta usa <b>≥2 como elevado</b>, el punto de corte aplicado en varios estudios posteriores. La definición de los componentes procede del texto de esos estudios; el texto completo del artículo original no se pudo consultar. El eGFR se suele calcular con CKD-EPI 2021.</p></div>';
+      '</table></div><p class="hint" style="margin-top:8px">Rango de 0 a 5. Fan et al. (<i>J Nutr</i> 2021) lo validaron frente a la prueba de tolerancia al magnesio en 77 adultos: AUC de 0,63 (IC 95 %: 0,50–0,76) para el modelo con MDS, edad y sexo, frente a 0,53 para el magnesio sérico solo. <b>Es una discriminación modesta.</b> Según la revisión de alcance de Costello, Fan y Wallace (<i>Nutrients</i> 2025; 48 artículos, todos con datos de NHANES), la agrupación más usada es <b>0 / 1 / 2 / ≥3</b> (27 artículos), y un <b>MDS &gt; 2</b> se ha usado para indicar déficit de magnesio asociado a inflamación sistémica y mortalidad cardiovascular. Esta herramienta usa por eso <b>≥3 como elevado</b>. Algunos estudios usan ≥2 (p. ej., Tian et al. 2024), y la propia revisión advierte que el punto de corte podría variar según la población y la enfermedad, y que el índice <i>"needs further evaluation and validation before being accepted for general use"</i>. Todos los datos proceden de estudios observacionales; no hay ensayos clínicos que prueben que intervenir guiándose por el MDS mejore los desenlaces. La mayoría de los artículos calculó el eGFR con CKD-EPI 2021. La definición de los componentes procede de estudios posteriores; el texto completo del artículo original no se pudo consultar.</p></div>';
 
     t += '<div class="card pad" style="margin-top:14px"><h3>Por qué no basta el magnesio sérico</h3>' +
       '<p class="hint" style="margin-top:6px">El intervalo de referencia habitual del magnesio sérico (0,75–0,95 mmol/l) procede de la distribución poblacional de NHANES I (1974), no de desenlaces clínicos. Puede existir un déficit subclínico con valores dentro de ese intervalo (Costello et al., <i>Adv Nutr</i> 2016).</p></div>';

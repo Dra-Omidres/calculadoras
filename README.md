@@ -57,6 +57,8 @@ estima dos cosas que sí pueden estimarse:
   inadecuación) y con la RDA, según Barr, Murphy y Poos (2002).
 - **Pérdidas.** Índice de depleción de magnesio (Fan et al., *J Nutr* 2021),
   de 0 a 5 puntos: diurético, inhibidor de bomba de protones, alcohol y eGFR.
+  Se considera elevado un MDS > 2 (≥ 3), el punto de corte usado para indicar
+  déficit y la agrupación más frecuente (Costello, Fan y Wallace, *Nutrients* 2025).
 - **Seguridad.** Alerta si el magnesio de suplementos y fármacos supera el UL
   de 350 mg/día, o si se usa magnesio con la función renal disminuida.
 
