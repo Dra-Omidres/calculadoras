@@ -59,6 +59,13 @@ estima dos cosas que sí pueden estimarse:
   de 0 a 5 puntos: diurético, inhibidor de bomba de protones, alcohol y eGFR.
   Se considera elevado un MDS > 2 (≥ 3), el punto de corte usado para indicar
   déficit y la agrupación más frecuente (Costello, Fan y Wallace, *Nutrients* 2025).
+- **Suplementación orientativa.** Sugiere un complemento de magnesio
+  elemental hasta la RDA, sin superar el UL de 350 mg/día de suplementos, y
+  calcula cuántos mg de cada sal (citrato, glicinato, cloruro, lactato, malato,
+  taurato, L-treonato, gluconato, carbonato, óxido) aportan esa cantidad. El %
+  de magnesio elemental se calcula por estequiometría. Las notas de absorción
+  solo recogen lo verificado en PubMed. Incluye un lector de etiquetas. No
+  calcula dosis si la función renal está disminuida.
 - **Seguridad.** Alerta si el magnesio de suplementos y fármacos supera el UL
   de 350 mg/día, o si se usa magnesio con la función renal disminuida.
 
