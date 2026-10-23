@@ -616,7 +616,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
       '<p class="hint" style="margin:6px 0 12px">' + esc(FOOD_SRC) + '</p><div class="tablewrap"><table><tr><th>Alimento</th><th>Porción</th><th>mg/100 g</th><th>mg/porción</th><th>Fuente</th></tr>' +
       FOODS.map(function(fd){ return '<tr><td>' + esc(fd.n) + '</td><td>' + esc(fd.po) + '</td><td>' + fd.mg100 + '</td><td>' + f0(mgPorcion(fd)) + '</td><td class="src">' + esc(fd.src) + '</td></tr>'; }).join("") +
       '</table></div><p class="hint" style="margin-top:8px"><b>Limitaciones del cuestionario.</b> No está validado. Usa el punto medio de cada intervalo de frecuencia y cuenta "2 o más al día" como 2, por lo que tiende a subestimar a quien come mucho de un alimento. No incluye el magnesio del agua ni el de alimentos fuera de la lista.</p></div>';
-    $("#protables").innerHTML = t;
+    var pt = $("#protables"); if (pt) pt.innerHTML = t;
     $("#refs").innerHTML = REFS.map(function(r){ return "<li>" + r + "</li>"; }).join("");
   }
 

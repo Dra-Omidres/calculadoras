@@ -14,6 +14,7 @@ ocurre en el navegador; no se almacena ni se transmite ningún dato.
 index.html                       Portada con el listado de herramientas
 fenotipos-obesidad/index.html    Fenotipos de obesidad (Acosta + escala EFCA)
 magnesio/index.html              Ingesta de magnesio e Índice de depleción (MDS)
+magnesio/paciente/index.html     La misma calculadora, solo modo paciente (para la web y el CRM)
 LICENSE.md                       Licencia y fuentes
 ```
 
