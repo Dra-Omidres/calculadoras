@@ -15,6 +15,8 @@ index.html                       Portada con el listado de herramientas
 fenotipos-obesidad/index.html    Fenotipos de obesidad (Acosta + escala EFCA)
 magnesio/index.html              Ingesta de magnesio e Índice de depleción (MDS)
 magnesio/paciente/index.html     La misma calculadora, solo modo paciente (para la web y el CRM)
+magnesio/codigo-alimentos.csv    Orden de los alimentos para interpretar el código del formulario
+tools/build-paciente.py          Regenera la versión paciente a partir de magnesio/index.html
 LICENSE.md                       Licencia y fuentes
 ```
 
@@ -32,6 +34,18 @@ Estima a qué perfil de conducta alimentaria se aproxima el patrón del paciente
 - **Puerta de entrada.** Confirma primero la adiposidad con criterios ADA 2026.
 - **Bloqueos de seguridad.** Señala cuándo el paciente no debe iniciar cambios por
   su cuenta, con criterios distintos para alimentación y para ejercicio.
+
+### Envío opcional del resultado (Google Forms)
+
+Al final del resultado puede aparecer el botón **Recibir mi resultado**. Abre un
+formulario de Google con el resumen ya escrito; solo se envía si la persona
+completa sus datos, acepta el consentimiento y pulsa «Enviar». El botón está
+oculto mientras `FORM.url` esté vacío (configuración al inicio del script de
+`magnesio/index.html`). Tras configurarlo, ejecutar `python3 tools/build-paciente.py`.
+
+El campo `codigo` guarda la frecuencia de cada alimento como `v1:` seguido de un
+dígito por alimento, en el orden de `magnesio/codigo-alimentos.csv`
+(0 nunca · 1 <1/sem · 2 1/sem · 3 2–4/sem · 4 5–6/sem · 5 1/día · 6 2+/día).
 
 ### Lo que esta herramienta no es
 

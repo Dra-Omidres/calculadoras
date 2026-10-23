@@ -273,7 +273,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
 
     <button class="btn" type="submit">Ver mi resultado</button>
     <button class="btn secondary" type="button" id="demo">Cargar ejemplo</button>
-    <p class="hint" style="margin-top:10px">Todo el cálculo ocurre en tu dispositivo. No se guarda ni se envía nada.</p>
+    <p class="hint" style="margin-top:10px">Todo el cálculo ocurre en tu dispositivo. No se guarda ni se envía nada, salvo que tú decidas enviarnos tu resultado.</p>
   </form>
 
   <section id="res" class="card pad" aria-live="polite">
@@ -289,13 +289,21 @@ body[data-mode="pro"] .pro-inline{display:inline}
 </section>
 
 <footer><div class="wrap">
-  <p class="disc"><b>Esta herramienta no diagnostica.</b> Estima la ingesta habitual a partir de un cuestionario de frecuencia de consumo <b>no validado</b>, que solo aproxima la ingesta real, y calcula el Índice de depleción de magnesio a partir de datos autorreportados. No mide el magnesio intracelular ni el contenido corporal total. Un resultado favorable no descarta un déficit, y uno desfavorable no lo confirma. Úsala para preparar la conversación clínica, nunca para sustituirla. No está diseñada para embarazo, lactancia ni menores de 19 años. No inicies ni suspendas suplementos o medicamentos sin indicación médica. Los datos introducidos no se almacenan ni se transmiten.</p>
+  <p class="disc"><b>Esta herramienta no diagnostica.</b> Estima la ingesta habitual a partir de un cuestionario de frecuencia de consumo <b>no validado</b>, que solo aproxima la ingesta real, y calcula el Índice de depleción de magnesio a partir de datos autorreportados. No mide el magnesio intracelular ni el contenido corporal total. Un resultado favorable no descarta un déficit, y uno desfavorable no lo confirma. Úsala para preparar la conversación clínica, nunca para sustituirla. No está diseñada para embarazo, lactancia ni menores de 19 años. No inicies ni suspendas suplementos o medicamentos sin indicación médica. Los datos introducidos no se almacenan ni se transmiten, salvo que decidas enviarlos mediante el formulario de resultados.</p>
 </div></footer>
 
 <script>
 (function(){
   // ===== CONFIGURACIÓN =====
   var LINK_AGENDA = "https://draomidresperez.com/consulta-enlinea";
+  // Formulario de Google para recibir el resultado. Mientras "url" esté vacío, el botón no aparece.
+  // "url" es el enlace del formulario terminado en /viewform. Cada campo es el código "entry.NNNN"
+  // que aparece en el enlace prellenado de Google Forms.
+  var FORM = {
+    url: "",
+    campos: {edad: "", sexo: "", alimentos: "", suplementos: "", pctEar: "", mds: "", codigo: ""}
+  };
+  var LINK_PRIVACIDAD = "";
   // =========================
 
   var DRI = [{"min": 19, "max": 30, "label": "19–30 años", "F": {"ear": 255, "rda": 310}, "M": {"ear": 330, "rda": 400}}, {"min": 31, "max": 120, "label": "31 años o más", "F": {"ear": 265, "rda": 320}, "M": {"ear": 350, "rda": 420}}];
@@ -408,6 +416,23 @@ body[data-mode="pro"] .pro-inline{display:inline}
     }
     if (r > 0) { pts.push([r === 2 ? "Filtrado glomerular menor de 60" : "Filtrado glomerular de 60 a 89", r]); total += r; }
     return {total:total, pts:pts, incompleto:incompleto, egfr:isNaN(egfr) ? null : egfr};
+  }
+
+  // Enlace prellenado de Google Forms con el resumen del resultado.
+  // "codigo" guarda la frecuencia de los alimentos: "v1:" + un dígito por alimento, en el orden de FOODS
+  // (0 nunca · 1 <1/sem · 2 1/sem · 3 2–4/sem · 4 5–6/sem · 5 1/día · 6 2+/día).
+  function enlaceFormulario(r){
+    if (!FORM.url) return "";
+    var v = {
+      edad: r.edad, sexo: r.sexo === "F" ? "Mujer" : "Hombre",
+      alimentos: Math.round(r.alim), suplementos: Math.round(r.supl) + (r.noSabe ? " (+ dosis desconocida)" : ""),
+      pctEar: Math.round(r.total / r.req.ear * 100) + " %",
+      mds: r.m.total + (r.m.pts.length ? " — " + r.m.pts.map(function(p){ return p[0] + " +" + p[1]; }).join("; ") : "") + (r.m.incompleto ? " — función renal no informada" : ""),
+      codigo: "v1:" + FOODS.map(function(fd, i){ return $("#fd" + i).value; }).join("")
+    };
+    var q = [];
+    Object.keys(FORM.campos).forEach(function(k){ if (FORM.campos[k]) q.push(encodeURIComponent(FORM.campos[k]) + "=" + encodeURIComponent(v[k])); });
+    return FORM.url + (FORM.url.indexOf("?") < 0 ? "?" : "&") + "usp=pp_url&" + q.join("&");
   }
 
   // ---------- Cálculo ----------
@@ -572,6 +597,15 @@ body[data-mode="pro"] .pro-inline{display:inline}
       '<label class="f">Compuesto por cápsula o tableta <span class="u">(mg)</span><input type="number" id="lbl-mg" min="1" max="5000" step="1" placeholder="Ej.: 500"></label></div>' +
       '<p class="why" id="lbl-out" style="margin-top:10px"></p></div>';
     h += '<p class="hint" style="margin-top:10px"><b>Es una orientación, no una prescripción.</b> Confírmala con tu médico, sobre todo si tomas otros medicamentos. La diarrea es el efecto que limita la dosis de los suplementos.</p></div>';
+
+    var link = enlaceFormulario({edad:edad, sexo:sexo, alim:alim, supl:suplTotal, noSabe:noSabe, total:total, req:req, m:m});
+    if (link){
+      h += '<div class="section"><h3>Recibe tu resultado y material educativo</h3>' +
+        '<p class="why" style="margin-top:6px">Se abrirá un formulario de Google con tus resultados ya escritos. Completa tus datos de contacto y decide qué aceptas. <b>Solo se envían si pulsas «Enviar» en ese formulario.</b></p>' +
+        '<a class="btn" style="display:inline-block;width:auto;text-decoration:none;margin-top:12px" href="' + esc(link) + '" target="_blank" rel="noopener">Recibir mi resultado</a>' +
+        (LINK_PRIVACIDAD ? '<p class="hint" style="margin-top:8px">Consulta nuestra <a href="' + esc(LINK_PRIVACIDAD) + '" target="_blank" rel="noopener">política de privacidad</a>.</p>' : '') +
+        '</div>';
+    }
 
     h += '<div class="cta"><b>¿Quieres revisar tu magnesio con criterio clínico?</b><p>En consulta valoramos tu alimentación, tus medicamentos, tu función renal y, si hace falta, otras pruebas además del magnesio en sangre.</p><a class="btn" href="' + LINK_AGENDA + '" target="_blank" rel="noopener">Agendar consulta</a></div>';
 
