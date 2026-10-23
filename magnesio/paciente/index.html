@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de magnesio — Dra. Omidres Pérez de Carvelli</title>
+<meta name="description" content="Estima la ingesta diaria de magnesio con alimentos latinoamericanos y el Índice de depleción de magnesio. Uso educativo; no sustituye la consulta médica.">
+<style>
+:root{
+  --bg:#F4F5F9; --surface:#FFFFFF; --surface-2:#EEF0F6; --line:#D8DCE8;
+  --ink:#181F4D; --ink-2:#3C4470; --muted:#6B7290;
+  --accent:#EA5300; --accent-ink:#FFFFFF; --accent-soft:#FFF0E6;
+  --navy:#181F4D; --navy-ink:#FFFFFF;
+  --ok:#1E7F52; --ok-soft:#E3F3EA;
+  --warn:#B8730A; --warn-soft:#FFF4DC;
+  --high:#C9470D; --high-soft:#FDE8DD;
+  --crit:#A4231B; --crit-soft:#FADFDC;
+  --focus:#EA5300;
+  --shadow:0 1px 2px rgba(24,31,77,.06), 0 8px 24px rgba(24,31,77,.08);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1330; --surface:#1A1F45; --surface-2:#232A58; --line:#343C6E;
+    --ink:#F2F3FA; --ink-2:#C9CDE3; --muted:#9AA1C4;
+    --accent:#FF7A33; --accent-ink:#1A0A00; --accent-soft:#3A2214;
+    --navy:#2A3270; --navy-ink:#F2F3FA;
+    --ok:#5FD39A; --ok-soft:#153A2A;
+    --warn:#F2B84B; --warn-soft:#3E2E0C;
+    --high:#FF8A5B; --high-soft:#4A2313;
+    --crit:#FF7B72; --crit-soft:#4B1B18;
+    --focus:#FF7A33;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1330; --surface:#1A1F45; --surface-2:#232A58; --line:#343C6E;
+  --ink:#F2F3FA; --ink-2:#C9CDE3; --muted:#9AA1C4;
+  --accent:#FF7A33; --accent-ink:#1A0A00; --accent-soft:#3A2214;
+  --navy:#2A3270; --navy-ink:#F2F3FA;
+  --ok:#5FD39A; --ok-soft:#153A2A;
+  --warn:#F2B84B; --warn-soft:#3E2E0C;
+  --high:#FF8A5B; --high-soft:#4A2313;
+  --crit:#FF7B72; --crit-soft:#4B1B18;
+  --focus:#FF7A33;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.55}
+h1,h2,h3,h4{letter-spacing:-.01em;margin:0;line-height:1.2}
+h1{font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:800}
+h2{font-size:1.3rem;font-weight:700}
+h3{font-size:1.04rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+.brandbar{background:var(--navy);color:var(--navy-ink)}
+.brandbar .wrap{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;padding:10px 20px;font-size:.9rem}
+.brandbar .tag{color:#FFB07A;font-weight:700}
+
+header.hero{padding:30px 0 18px}
+header.hero .eyebrow{color:var(--accent)}
+header.hero .lead{max-width:64ch;color:var(--ink-2);margin-top:10px;font-size:1.04rem}
+
+/* selector de modo */
+.modebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 0 22px}
+.modeswitch{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.modeswitch label{padding:9px 16px;cursor:pointer;font-weight:700;font-size:.93rem;color:var(--ink-2)}
+.modeswitch label:has(input:checked){background:var(--navy);color:var(--navy-ink)}
+.modeswitch input{position:absolute;opacity:0;width:0;height:0}
+.modenote{font-size:.88rem;color:var(--muted);max-width:60ch}
+
+.grid{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:24px;align-items:start;padding-bottom:36px}
+@media (max-width:920px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.card.pad{padding:22px}
+
+fieldset{border:0;padding:0;margin:0 0 22px}
+legend{font-weight:700;font-size:1rem;margin-bottom:10px;color:var(--ink);display:flex;align-items:center;gap:10px}
+legend .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--navy-ink);font-size:.78rem;flex:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:430px){.row{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:.92rem;font-weight:600;color:var(--ink-2)}
+label.f span.u{font-weight:400;color:var(--muted)}
+input[type=number],select{font:inherit;font-size:1.03rem;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+/* los radios de Likert, sexo y modo estan ocultos: el foco se dibuja sobre la etiqueta */
+.opts{display:flex;flex-direction:column;gap:6px}
+.opts label{display:flex;gap:10px;align-items:flex-start;font-size:.94rem;padding:7px 9px;border-radius:8px;border:1px solid transparent;cursor:pointer}
+.opts label:hover{background:var(--surface-2)}
+.opts input{margin-top:4px;accent-color:var(--accent);flex:none;width:17px;height:17px}
+.opts .sub{display:block;color:var(--muted);font-size:.85rem}
+.hint{font-size:.88rem;color:var(--muted)}
+.segm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.segm label{border:1px solid var(--line);border-radius:9px;padding:9px;text-align:center;cursor:pointer;font-weight:600;font-size:.94rem;background:var(--surface-2)}
+.segm label:has(input:checked){background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
+.segm input{position:absolute;opacity:0;width:0;height:0}
+.btn{font-weight:700;font-size:1.02rem;border:0;border-radius:10px;padding:13px 20px;cursor:pointer;background:var(--accent);color:var(--accent-ink);width:100%}
+.btn.secondary{background:var(--surface-2);color:var(--ink);border:1px solid var(--line);margin-top:10px}
+
+/* items likert */
+
+/* resultados */
+.dx{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:14px 0 8px}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 12px;font-weight:700;font-size:.9rem;border:1px solid transparent}
+.pill::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.tone-ok{color:var(--ok);background:var(--ok-soft)}
+.tone-warn{color:var(--warn);background:var(--warn-soft)}
+.tone-high{color:var(--high);background:var(--high-soft)}
+.tone-crit{color:var(--crit);background:var(--crit-soft)}
+.tone-info{color:var(--ink-2);background:var(--surface-2)}
+.why{color:var(--ink-2);max-width:68ch}
+.bars{margin:18px 0 4px;display:flex;flex-direction:column;gap:13px}
+.bar-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
+.bar-row .name{font-weight:700;font-size:.97rem}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:800;font-size:.97rem}
+.bar-row .track{position:relative;height:13px;border-radius:7px;background:var(--surface-2);overflow:hidden}
+.bar-row .fill{height:100%;border-radius:7px}
+.bar-row .cut{position:absolute;top:-3px;height:19px;width:2px;background:var(--ink);opacity:.45}
+.bar-row .desc{font-size:.88rem;color:var(--muted);margin-top:4px}
+.section{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;padding:12px 14px;background:var(--surface-2);border-radius:10px}
+.steps li .ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:.82rem;color:var(--navy-ink);background:var(--navy)}
+.steps li b{display:block;font-weight:700;margin-bottom:2px}
+.steps li p{color:var(--ink-2);font-size:.94rem}
+.alert{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid;margin-top:10px;font-size:.94rem}
+.alert .mk{font-weight:800}
+.alert.crit{border-color:var(--crit);background:var(--crit-soft)}
+.alert.warn{border-color:var(--warn);background:var(--warn-soft)}
+.alert.info{border-color:var(--line);background:var(--surface-2)}
+.alert>div>b:first-child{display:block;margin-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tablewrap{overflow-x:auto}
+.cta{margin-top:22px;background:var(--navy);color:var(--navy-ink);border-radius:14px;padding:20px 22px}
+.cta p{max-width:56ch;font-size:.97rem;margin-top:6px}
+.cta a.btn{width:auto;display:inline-block;text-decoration:none;text-align:center;margin-top:14px}
+.gate{border:2px dashed var(--line);border-radius:12px;padding:16px 18px;margin-top:20px;background:var(--surface-2)}
+.gate h3{margin-bottom:6px}
+.gate .blocked{border-color:var(--crit);background:var(--crit-soft)}
+.pro-only{display:none}
+.lic{font-size:.84rem;color:var(--muted);border-left:3px solid var(--line);padding:6px 0 6px 12px;margin-top:10px}
+body[data-mode="pro"] .pro-only{display:block}
+body[data-mode="pro"] .pat-only{display:none}
+.refs{padding:10px 0 40px}
+.refs ol{padding-left:20px;color:var(--ink-2);font-size:.9rem}
+.refs li{margin-bottom:7px}
+footer{border-top:1px solid var(--line);padding:24px 0 44px;color:var(--muted);font-size:.86rem}
+footer .disc{max-width:82ch}
+@media print{.brandbar,form,.cta,.modebar{display:none}.grid{grid-template-columns:1fr}}
+
+/* --- magnesio --- */
+.foodgroup{margin-top:14px}
+.foodgroup h3{font-size:.86rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.food{display:grid;grid-template-columns:minmax(0,1fr) 186px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.food:last-child{border-bottom:0}
+.food .nm{font-size:.94rem;font-weight:600}
+.food .po{display:block;font-size:.82rem;color:var(--muted);font-weight:400}
+.food .mg{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.food select{font-size:.9rem;padding:7px 8px}
+@media (max-width:430px){.food{grid-template-columns:1fr}}
+.big{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 6px}
+.kpi{flex:1 1 140px;background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.kpi .l{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:2px}
+.kpi .v small{font-size:.9rem;font-weight:600;color:var(--muted)}
+.kpi .s{font-size:.84rem;color:var(--ink-2)}
+.gauge{position:relative;height:16px;border-radius:8px;background:var(--surface-2);margin:30px 0 26px;overflow:visible}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:var(--accent)}
+.gauge .fill.supp{background:#2F7FB8;opacity:.75}
+.gauge .mk{position:absolute;top:-6px;height:28px;width:2px;background:var(--ink)}
+.gauge .mk span{position:absolute;white-space:nowrap;font-size:.74rem;font-weight:700;color:var(--ink-2);transform:translateX(-50%);left:1px}
+.gauge .mk.t span{top:-18px}
+.gauge .mk.b span{top:30px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.84rem;color:var(--ink-2)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.matrix{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;font-size:.86rem;margin-top:12px}
+.matrix .h{font-weight:700;color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.matrix .c{border-radius:10px;padding:10px;border:2px solid transparent;background:var(--surface-2);color:var(--ink-2)}
+.matrix .c b{display:block;color:var(--ink)}
+.matrix .c.on{border-color:var(--ink);box-shadow:var(--shadow)}
+.mds{display:flex;gap:6px;margin:10px 0}
+.mds span{flex:1;height:12px;border-radius:6px;background:var(--surface-2)}
+.mds span.on{background:var(--high)}
+.contrib{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+.contrib li{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:8px;align-items:center;font-size:.9rem}
+.contrib .tr{grid-column:1/-1;height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden;margin-top:-3px}
+.contrib .tr i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.contrib .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.pending{border:2px dashed var(--warn);background:var(--warn-soft);border-radius:12px;padding:14px 16px;font-size:.94rem}
+.src{font-size:.78rem;color:var(--muted)}
+.grid>*{min-width:0}
+
+.pro-inline{display:none}
+body[data-mode="pro"] .pro-inline{display:inline}
+</style></head>
+<body data-mode="pac">
+
+<div class="brandbar"><div class="wrap">
+  <div><b>Dra. Omidres Pérez de Carvelli</b> · Internista · Endocrinóloga</div>
+  <div class="tag">#HagamosViralLaSalud</div>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">Magnesio · Ingesta diaria y riesgo de depleción</div>
+  <h1>¿Te llega suficiente magnesio?</h1>
+  <p class="lead">Más del 99&nbsp;% del magnesio del cuerpo está dentro de las células, no en la sangre. Por eso un análisis de magnesio <b>normal</b> no descarta que falte. Esta herramienta mira dos cosas que sí se pueden estimar: <b>cuánto magnesio comes</b> y <b>cuánto podrías estar perdiendo</b>. No mide el magnesio de tus células: <b>no es un diagnóstico</b>.</p>
+</div></header>
+
+<main class="wrap grid">
+  <form id="f" autocomplete="off" class="card pad">
+
+    <fieldset>
+      <legend><span class="n">1</span>Tus datos</legend>
+      <p class="hint" style="margin-bottom:10px">Tu requerimiento de magnesio depende de la edad y el sexo. Para adultos de 19 años o más. <b>No está diseñada para embarazo ni lactancia</b>: en esas etapas tu médico u obstetra debe valorar tu magnesio.</p>
+      <div class="segm">
+        <label><input type="radio" name="sexo" value="F" checked>Mujer</label>
+        <label><input type="radio" name="sexo" value="M">Hombre</label>
+      </div>
+      <div class="row">
+        <label class="f">Edad <span class="u">(años)</span><input type="number" id="edad" min="19" max="110" step="1" required></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="n">2</span>¿Con qué frecuencia comes…?</legend>
+      <p class="hint">Piensa en el <b>último mes</b> y en la porción indicada. Si comes el doble de la porción, elige la frecuencia siguiente. Los alimentos de la lista son los que más magnesio aportan en una alimentación latinoamericana habitual.</p>
+      <div id="foods"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="n">3</span>Suplementos y medicamentos con magnesio</legend>
+      <p class="hint" style="margin-bottom:10px">Busca en la etiqueta la cifra de <b>magnesio elemental</b>, no el peso de la sal (citrato, glicinato, óxido…). Si no la encuentras, marca la casilla y lleva el envase a tu consulta.</p>
+      <div class="row">
+        <label class="f">Suplemento <span class="u">(mg de magnesio elemental al día)</span><input type="number" id="supl" min="0" max="3000" step="1"></label>
+        <label class="f">Antiácidos o laxantes con magnesio <span class="u">(mg al día)</span><input type="number" id="farmmg" min="0" max="5000" step="1"></label>
+      </div>
+      <div class="opts" style="margin-top:10px">
+        <label><input type="checkbox" id="suplns"><span>Tomo un suplemento o un medicamento con magnesio, pero no sé cuánto magnesio elemental aporta</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="n">4</span>Lo que aumenta las pérdidas</legend>
+      <p class="hint" style="margin-bottom:10px">Los riñones regulan cuánto magnesio se retiene. Estos cuatro factores forman el <b>Índice de depleción de magnesio</b> (MDS), un puntaje publicado que estima cuánto se reduce esa capacidad.</p>
+      <div class="opts">
+        <label><input type="checkbox" id="diur"><span>Tomo un <b>diurético</b> <span class="sub">Por ejemplo furosemida, hidroclorotiazida, clortalidona, indapamida, espironolactona.</span></span></label>
+        <label><input type="checkbox" id="ibp"><span>Tomo un <b>protector gástrico</b> del grupo de los inhibidores de la bomba de protones <span class="sub">Omeprazol, esomeprazol, pantoprazol, lansoprazol, rabeprazol.</span></span></label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="f">Bebidas alcohólicas <span class="u">(promedio al día)</span><input type="number" id="alc" min="0" max="40" step="0.5" value="0"></label>
+        <label class="f">Función de tus riñones
+          <select id="renal">
+            <option value="ns">No lo sé</option>
+            <option value="0">Normal (filtrado de 90 o más)</option>
+            <option value="1">Algo disminuida (filtrado de 60 a 89)</option>
+            <option value="2">Disminuida (filtrado menor de 60)</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint" style="margin-top:6px">Cuenta como una bebida la que contiene unos <b>14 g de alcohol puro</b>, la definición usada en el estudio original. <span class="pro-inline">Si introduces el filtrado glomerular estimado abajo, sustituye a la opción elegida.</span></p>
+      <div class="row pro-only" style="margin-top:10px">
+        <label class="f">eGFR <span class="u">(ml/min/1,73 m²)</span><input type="number" id="egfr" min="2" max="200" step="1"></label>
+      </div>
+    </fieldset>
+
+    <button class="btn" type="submit">Ver mi resultado</button>
+    <button class="btn secondary" type="button" id="demo">Cargar ejemplo</button>
+    <p class="hint" style="margin-top:10px">Todo el cálculo ocurre en tu dispositivo. No se guarda ni se envía nada.</p>
+  </form>
+
+  <section id="res" class="card pad" aria-live="polite">
+    <div class="eyebrow">Tu resultado</div>
+    <div id="out"><p class="why" style="margin-top:10px">Completa el formulario y pulsa <b>Ver mi resultado</b>.</p></div>
+  </section>
+</main>
+
+
+<section class="wrap refs">
+  <h2>Referencias</h2>
+  <ol id="refs"></ol>
+</section>
+
+<footer><div class="wrap">
+  <p class="disc"><b>Esta herramienta no diagnostica.</b> Estima la ingesta habitual a partir de un cuestionario de frecuencia de consumo <b>no validado</b>, que solo aproxima la ingesta real, y calcula el Índice de depleción de magnesio a partir de datos autorreportados. No mide el magnesio intracelular ni el contenido corporal total. Un resultado favorable no descarta un déficit, y uno desfavorable no lo confirma. Úsala para preparar la conversación clínica, nunca para sustituirla. No está diseñada para embarazo, lactancia ni menores de 19 años. No inicies ni suspendas suplementos o medicamentos sin indicación médica. Los datos introducidos no se almacenan ni se transmiten.</p>
+</div></footer>
+
+<script>
+(function(){
+  // ===== CONFIGURACIÓN =====
+  var LINK_AGENDA = "https://draomidresperez.com/consulta-enlinea";
+  // =========================
+
+  var DRI = [{"min": 19, "max": 30, "label": "19–30 años", "F": {"ear": 255, "rda": 310}, "M": {"ear": 330, "rda": 400}}, {"min": 31, "max": 120, "label": "31 años o más", "F": {"ear": 265, "rda": 320}, "M": {"ear": 350, "rda": 420}}];
+  var DRI_SRC = "Valores del Institute of Medicine (1997). RDA: Sankararaman et al. 2026. EAR: Fan et al. 2025 y Omofuma et al. 2024, que coinciden.";
+  var UL_SUPP = 350;
+  var FOODS = [{"g": "Legumbres", "n": "Caraotas o frijoles negros, cocidos", "po": "1 taza (172 g)", "gr": 172.0, "mg100": 70.0, "src": "USDA SR28 NDB 16015 · Beans, black, mature seeds, cooked, boiled, without salt"}, {"g": "Legumbres", "n": "Frijoles o caraotas rojas, cocidos", "po": "1 taza (177 g)", "gr": 177.0, "mg100": 42.0, "src": "USDA SR28 NDB 16028 · Beans, kidney, all types, mature seeds, cooked, boiled, without salt"}, {"g": "Legumbres", "n": "Frijoles pintos, cocidos", "po": "1 taza (171 g)", "gr": 171.0, "mg100": 50.0, "src": "USDA SR28 NDB 16043 · Beans, pinto, mature seeds, cooked, boiled, without salt"}, {"g": "Legumbres", "n": "Lentejas, cocidas", "po": "1 taza (198 g)", "gr": 198.0, "mg100": 36.0, "src": "USDA SR28 NDB 16070 · Lentils, mature seeds, cooked, boiled, without salt"}, {"g": "Legumbres", "n": "Garbanzos, cocidos", "po": "1 taza (164 g)", "gr": 164.0, "mg100": 48.0, "src": "USDA SR28 NDB 16057 · Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt"}, {"g": "Frutos secos y semillas", "n": "Semillas de auyama o calabaza (pepitas), tostadas", "po": "1 onza, un puñado pequeño (28 g)", "gr": 28.4, "mg100": 550.0, "src": "USDA SR28 NDB 12016 · Seeds, pumpkin and squash seed kernels, roasted, without salt"}, {"g": "Frutos secos y semillas", "n": "Almendras", "po": "1 onza, unas 23 almendras (28 g)", "gr": 28.4, "mg100": 270.0, "src": "USDA SR28 NDB 12061 · Nuts, almonds"}, {"g": "Frutos secos y semillas", "n": "Merey o marañón, tostado", "po": "1 onza, un puñado pequeño (28 g)", "gr": 28.4, "mg100": 260.0, "src": "USDA SR28 NDB 12085 · Nuts, cashew nuts, dry roasted, without salt added"}, {"g": "Frutos secos y semillas", "n": "Maní, tostado", "po": "1 onza, un puñado pequeño (28 g)", "gr": 28.4, "mg100": 178.0, "src": "USDA SR28 NDB 16390 · Peanuts, all types, dry-roasted, without salt"}, {"g": "Frutos secos y semillas", "n": "Nueces", "po": "1 onza, unas 14 mitades (28 g)", "gr": 28.4, "mg100": 158.0, "src": "USDA SR28 NDB 12155 · Nuts, walnuts, english"}, {"g": "Frutos secos y semillas", "n": "Semillas de chía", "po": "1 onza (28 g)", "gr": 28.4, "mg100": 335.0, "src": "USDA SR28 NDB 12006 · Seeds, chia seeds, dried"}, {"g": "Frutos secos y semillas", "n": "Ajonjolí", "po": "1 cucharada (9.0 g)", "gr": 9.0, "mg100": 351.0, "src": "USDA SR28 NDB 12023 · Seeds, sesame seeds, whole, dried"}, {"g": "Cereales, tubérculos y plátano", "n": "Quinoa, cocida", "po": "1 taza (185 g)", "gr": 185.0, "mg100": 64.0, "src": "USDA SR28 NDB 20137 · Quinoa, cooked"}, {"g": "Cereales, tubérculos y plátano", "n": "Arroz integral, cocido", "po": "1 taza (202 g)", "gr": 202.0, "mg100": 39.0, "src": "USDA SR28 NDB 20037 · Rice, brown, long-grain, cooked"}, {"g": "Cereales, tubérculos y plátano", "n": "Arroz blanco, cocido", "po": "1 taza (158 g)", "gr": 158.0, "mg100": 12.0, "src": "USDA SR28 NDB 20045 · Rice, white, long-grain, regular, enriched, cooked"}, {"g": "Cereales, tubérculos y plátano", "n": "Avena en hojuelas, cruda", "po": "1/3 de taza (27 g)", "gr": 27.0, "mg100": 138.0, "src": "USDA SR28 NDB 08120 · Cereals, oats, regular and quick, not fortified, dry"}, {"g": "Cereales, tubérculos y plátano", "n": "Arepa de maíz", "po": "1 unidad (98 g)", "gr": 98.0, "mg100": 27.0, "src": "USDA SR28 NDB 36415 · Restaurant, Latino, arepa (unleavened cornmeal bread)"}, {"g": "Cereales, tubérculos y plátano", "n": "Tortilla de maíz", "po": "1 unidad (24 g)", "gr": 24.0, "mg100": 72.0, "src": "USDA SR28 NDB 18363 · Tortillas, ready-to-bake or -fry, corn"}, {"g": "Cereales, tubérculos y plátano", "n": "Pan integral", "po": "1 rebanada (32 g)", "gr": 32.0, "mg100": 75.0, "src": "USDA SR28 NDB 18075 · Bread, whole-wheat, commercially prepared"}, {"g": "Cereales, tubérculos y plátano", "n": "Pan blanco", "po": "1 rebanada (29 g)", "gr": 29.0, "mg100": 23.0, "src": "USDA SR28 NDB 18069 · Bread, white, commercially prepared (includes soft bread crumbs)"}, {"g": "Cereales, tubérculos y plátano", "n": "Plátano, cocido", "po": "1 taza en rodajas (154 g)", "gr": 154.0, "mg100": 32.0, "src": "USDA SR28 NDB 09278 · Plantains, cooked"}, {"g": "Cereales, tubérculos y plátano", "n": "Papa horneada con piel", "po": "1 mediana (173 g)", "gr": 173.0, "mg100": 28.0, "src": "USDA SR28 NDB 11674 · Potatoes, baked, flesh and skin, without salt"}, {"g": "Cereales, tubérculos y plátano", "n": "Batata o camote, horneado", "po": "1 mediano (114 g)", "gr": 114.0, "mg100": 27.0, "src": "USDA SR28 NDB 11508 · Sweet potato, cooked, baked in skin, flesh, without salt"}, {"g": "Verduras y frutas", "n": "Espinaca, cocida", "po": "1 taza (180 g)", "gr": 180.0, "mg100": 87.0, "src": "USDA SR28 NDB 11458 · Spinach, cooked, boiled, drained, without salt"}, {"g": "Verduras y frutas", "n": "Acelga, cocida", "po": "1 taza picada (175 g)", "gr": 175.0, "mg100": 86.0, "src": "USDA SR28 NDB 11148 · Chard, swiss, cooked, boiled, drained, without salt"}, {"g": "Verduras y frutas", "n": "Brócoli, cocido", "po": "1/2 taza picado (78 g)", "gr": 78.0, "mg100": 21.0, "src": "USDA SR28 NDB 11091 · Broccoli, cooked, boiled, drained, without salt"}, {"g": "Verduras y frutas", "n": "Aguacate", "po": "1/2 aguacate (100 g)", "gr": 100.5, "mg100": 29.0, "src": "USDA SR28 NDB 09037 · Avocados, raw, all commercial varieties"}, {"g": "Verduras y frutas", "n": "Cambur o banana", "po": "1 mediano (118 g)", "gr": 118.0, "mg100": 27.0, "src": "USDA SR28 NDB 09040 · Bananas, raw"}, {"g": "Verduras y frutas", "n": "Lechosa o papaya", "po": "1 taza en trozos (145 g)", "gr": 145.0, "mg100": 21.0, "src": "USDA SR28 NDB 09226 · Papayas, raw"}, {"g": "Verduras y frutas", "n": "Guayaba", "po": "1 unidad (55 g)", "gr": 55.0, "mg100": 22.0, "src": "USDA SR28 NDB 09139 · Guavas, common, raw"}, {"g": "Verduras y frutas", "n": "Mango", "po": "1 taza en trozos (165 g)", "gr": 165.0, "mg100": 10.0, "src": "USDA SR28 NDB 09176 · Mangos, raw"}, {"g": "Verduras y frutas", "n": "Naranja", "po": "1 unidad (131 g)", "gr": 131.0, "mg100": 10.0, "src": "USDA SR28 NDB 09200 · Oranges, raw, all commercial varieties"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Leche entera", "po": "1 taza (244 g)", "gr": 244.0, "mg100": 10.0, "src": "USDA SR28 NDB 01077 · Milk, whole, 3.25% milkfat, with added vitamin D"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Yogur natural entero", "po": "1 taza (245 g)", "gr": 245.0, "mg100": 12.0, "src": "USDA SR28 NDB 01116 · Yogurt, plain, whole milk, 8 grams protein per 8 ounce · valor no analizado directamente"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Queso fresco", "po": "1/4 de taza desmenuzado (30 g)", "gr": 30.5, "mg100": 24.0, "src": "USDA SR28 NDB 01228 · Cheese, fresh, queso fresco"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Huevo, cocido", "po": "1 grande (50 g)", "gr": 50.0, "mg100": 10.0, "src": "USDA SR28 NDB 01129 · Egg, whole, cooked, hard-boiled"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Pechuga de pollo, asada", "po": "1/2 pechuga (86 g)", "gr": 86.0, "mg100": 29.0, "src": "USDA SR28 NDB 05064 · Chicken, broilers or fryers, breast, meat only, cooked, roasted"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Salmón, cocido", "po": "3 onzas (85 g)", "gr": 85.0, "mg100": 30.0, "src": "USDA SR28 NDB 15237 · Fish, salmon, Atlantic, farmed, cooked, dry heat"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Atún en agua, enlatado", "po": "3 onzas (85 g)", "gr": 85.0, "mg100": 23.0, "src": "USDA SR28 NDB 15121 · Fish, tuna, light, canned in water, drained solids"}, {"g": "Lácteos, huevo, carnes y pescados", "n": "Carne molida de res, cocida", "po": "3 onzas (85 g)", "gr": 85.0, "mg100": 22.0, "src": "USDA SR28 NDB 23220 · Beef, ground, unspecified fat content, cooked · valor no analizado directamente"}, {"g": "Cacao y bebidas", "n": "Cacao en polvo sin azúcar", "po": "1 cucharada (5.4 g)", "gr": 5.4, "mg100": 499.0, "src": "USDA SR28 NDB 19165 · Cocoa, dry powder, unsweetened"}, {"g": "Cacao y bebidas", "n": "Chocolate oscuro 70–85 % de cacao", "po": "1 onza (28 g)", "gr": 28.4, "mg100": 228.0, "src": "USDA SR28 NDB 19904 · Chocolate, dark, 70-85% cacao solids"}, {"g": "Cacao y bebidas", "n": "Café colado", "po": "1 taza (8 onzas) (237 g)", "gr": 237.0, "mg100": 3.0, "src": "USDA SR28 NDB 14209 · Beverages, coffee, brewed, prepared with tap water"}];
+  var FOOD_SRC = "Valores de USDA SR28 (mg por 100 g de la porción comestible) y pesos de las medidas caseras del mismo archivo. Los marcados como «valor no analizado directamente» se derivaron (por ejemplo, de recetas) y son menos precisos.";
+  var REFS = [
+ "Fan L, Zhu X, Rosanoff A, Costello RB, Yu C, Ness R, et al. Magnesium Depletion Score (MDS) predicts risk of systemic inflammation and cardiovascular mortality among US adults. <i>J Nutr</i>. 2021;151(8):2226-35. <a href=\"https://doi.org/10.1093/jn/nxab138\">doi:10.1093/jn/nxab138</a>",
+ "DiNicolantonio JJ, O'Keefe JH, Wilson W. Subclinical magnesium deficiency: a principal driver of cardiovascular disease and a public health crisis. <i>Open Heart</i>. 2018;5(1):e000668. <a href=\"https://doi.org/10.1136/openhrt-2017-000668\">doi:10.1136/openhrt-2017-000668</a>",
+ "Costello RB, Elin RJ, Rosanoff A, Wallace TC, Guerrero-Romero F, Hruby A, et al. Perspective: The case for an evidence-based reference interval for serum magnesium: the time has come. <i>Adv Nutr</i>. 2016;7(6):977-93. <a href=\"https://doi.org/10.3945/an.116.012765\">doi:10.3945/an.116.012765</a>",
+ "Barr SI, Murphy SP, Poos MI. Interpreting and using the dietary references intakes in dietary assessment of individuals and groups. <i>J Am Diet Assoc</i>. 2002;102(6):780-8. <a href=\"https://doi.org/10.1016/s0002-8223(02)90177-x\">doi:10.1016/s0002-8223(02)90177-x</a>",
+ "Sankararaman S, Memel Z, Dubroff J, Rocha JP. Magnesium: hype and health benefits. <i>Curr Nutr Rep</i>. 2026;15(1). <a href=\"https://doi.org/10.1007/s13668-026-00786-w\">doi:10.1007/s13668-026-00786-w</a>. Fuente de las RDA (tabla 1).",
+ "Fan L, Zhu X, Zhang X, Salvador S, Zhang X, Shrubsole MJ, et al. Magnesium depletion score and mortality in individuals with metabolic dysfunction associated steatotic liver disease over a median follow-up of 26 years. <i>Nutrients</i>. 2025;17(2):244. <a href=\"https://doi.org/10.3390/nu17020244\">doi:10.3390/nu17020244</a>. Fuente de los EAR.",
+ "Omofuma OO, Fang D, Yell N, Falomo O, Liu J, Steck SE. Trends in reported calcium and magnesium intake from diet and supplements by demographic factors: NHANES, 2003-2018. <i>J Acad Nutr Diet</i>. 2024;124(10):1288-1301.e5. <a href=\"https://doi.org/10.1016/j.jand.2024.04.017\">doi:10.1016/j.jand.2024.04.017</a>. Confirma los EAR.",
+ "Costello R, Rosanoff A, Nielsen F, West C. Perspective: Call for re-evaluation of the tolerable upper intake level for magnesium supplementation in adults. <i>Adv Nutr</i>. 2023;14(5):973-82. <a href=\"https://doi.org/10.1016/j.advnut.2023.06.008\">doi:10.1016/j.advnut.2023.06.008</a>. Fuente del UL.",
+ "Costello RB, Fan Z, Wallace TC. Magnesium depletion score as an indicator of health risk and nutritional status: a scoping review. <i>Nutrients</i>. 2025;17(20):3286. <a href=\"https://doi.org/10.3390/nu17203286\">doi:10.3390/nu17203286</a>. Fuente del punto de corte (MDS &gt; 2).",
+ "Tian Z, Qu S, Chen Y, Fang J, Song X, He K, et al. Associations of the magnesium depletion score and magnesium intake with diabetes among US adults: NHANES 2011-2018. <i>Epidemiol Health</i>. 2024;46:e2024020. <a href=\"https://doi.org/10.4178/epih.e2024020\">doi:10.4178/epih.e2024020</a>",
+ "Xing L, Gong Y, Liao G, Wang L, Chen L. Association between magnesium depletion score and all-cause and cause-specific mortality in patients with diabetic kidney disease. <i>Diabetol Metab Syndr</i>. 2025;17(1):130. <a href=\"https://doi.org/10.1186/s13098-025-01688-7\">doi:10.1186/s13098-025-01688-7</a>. Definición operativa de los componentes del MDS.",
+ "U.S. Department of Agriculture, Agricultural Research Service. USDA National Nutrient Database for Standard Reference, Release 28. 2016. Consultada a partir de los archivos originales (FOOD_DES, NUT_DATA, WEIGHT), con verificación cruzada contra una segunda copia independiente.",
+ "Firoz M, Graber M. Bioavailability of US commercial magnesium preparations. <i>Magnes Res</i>. 2001;14(4):257-62. PMID: 11794633.",
+ "Lindberg JS, Zobitz MM, Poindexter JR, Pak CY. Magnesium bioavailability from magnesium citrate and magnesium oxide. <i>J Am Coll Nutr</i>. 1990;9(1):48-55. <a href=\"https://doi.org/10.1080/07315724.1990.10720349\">doi:10.1080/07315724.1990.10720349</a>",
+ "Walker AF, Marakis G, Christie S, Byng M. Mg citrate found more bioavailable than other Mg preparations in a randomised, double-blind study. <i>Magnes Res</i>. 2003;16(3):183-91. PMID: 14596323.",
+ "Pardo MR, Garicano Vilar E, San Mauro Martín I, Camina Martín MA. Bioavailability of magnesium food supplements: a systematic review. <i>Nutrition</i>. 2021;89:111294. <a href=\"https://doi.org/10.1016/j.nut.2021.111294\">doi:10.1016/j.nut.2021.111294</a>",
+ "Mori S, Tomita T, Fujimura K, Asano H, Ogawa T, Yamasaki T, et al. A randomized double-blind placebo-controlled trial on the effect of magnesium oxide in patients with chronic constipation. <i>J Neurogastroenterol Motil</i>. 2019;25(4):563-75. <a href=\"https://doi.org/10.5056/jnm18194\">doi:10.5056/jnm18194</a>",
+ "Morishita D, Tomita T, Mori S, Kimura T, Oshima T, Fukui H, et al. Senna versus magnesium oxide for the treatment of chronic constipation: a randomized, placebo-controlled trial. <i>Am J Gastroenterol</i>. 2021;116(1):152-61. <a href=\"https://doi.org/10.14309/ajg.0000000000000942\">doi:10.14309/ajg.0000000000000942</a>",
+ "Porcentaje de magnesio elemental calculado por estequiometría: (número de átomos de Mg × 24,305) / peso molecular de la sal, con pesos atómicos estándar IUPAC (C 12,011; H 1,008; O 15,999; N 14,007; Cl 35,45; S 32,06)."
+];
+
+  // Sales de magnesio: % elemental = (n.º de Mg × 24,305) / peso molecular. Absorción: solo lo verificado en PubMed.
+  var ORG = "Sal orgánica. No se verificaron estudios en humanos que comparen su absorción; una revisión sistemática sugiere que, en general, las formas orgánicas se absorben mejor que las inorgánicas (Pardo 2021).";
+  var SALES = [
+    {k:"citrato",   n:"Citrato de magnesio",      d:"anhidro",            f:"Mg₃(C₆H₅O₇)₂",       mw:451.11, p:16.2, t:"ok",   a:"Más soluble y mejor absorbido que el óxido en dos estudios en voluntarios (Lindberg 1990; Walker 2003, ensayo aleatorizado)."},
+    {k:"citrato9",  n:"Citrato de magnesio",      d:"nonahidrato",        f:"Mg₃(C₆H₅O₇)₂·9H₂O",  mw:613.25, p:11.9, t:"ok",   a:"La misma sal con agua de cristalización: aporta menos magnesio por gramo. Revisa qué forma indica la etiqueta."},
+    {k:"glicinato", n:"Glicinato o bisglicinato", d:"",                   f:"Mg(C₂H₄NO₂)₂",       mw:172.42, p:14.1, t:"ok",   a:"Un «quelato de aminoácidos» se absorbió mejor que el óxido a los 60 días (Walker 2003). No se verificaron estudios con glicinato en particular."},
+    {k:"cloruro6",  n:"Cloruro de magnesio",      d:"hexahidrato, cristales", f:"MgCl₂·6H₂O",     mw:203.30, p:12.0, t:"ok",   a:"Absorción mayor que la del óxido y equivalente a la del lactato (Firoz y Graber 2001)."},
+    {k:"lactato",   n:"Lactato de magnesio",      d:"dihidrato",          f:"Mg(C₃H₅O₃)₂·2H₂O",   mw:238.47, p:10.2, t:"ok",   a:"Absorción mayor que la del óxido y equivalente a la del cloruro (Firoz y Graber 2001)."},
+    {k:"malato",    n:"Malato de magnesio",       d:"1:1, anhidro",       f:"MgC₄H₄O₅",           mw:156.38, p:15.5, t:"info", a:ORG},
+    {k:"taurato",   n:"Taurato de magnesio",      d:"",                   f:"Mg(C₂H₆NO₃S)₂",      mw:272.57, p:8.9,  t:"info", a:ORG},
+    {k:"treonato",  n:"L-treonato de magnesio",   d:"",                   f:"Mg(C₄H₇O₅)₂",        mw:294.50, p:8.3,  t:"info", a:ORG},
+    {k:"gluconato", n:"Gluconato de magnesio",    d:"anhidro",            f:"Mg(C₆H₁₁O₇)₂",       mw:414.60, p:5.9,  t:"info", a:ORG + " Es la que menos magnesio aporta por gramo."},
+    {k:"carbonato", n:"Carbonato de magnesio",    d:"",                   f:"MgCO₃",              mw:84.31,  p:28.8, t:"info", a:"Sal inorgánica. No se verificaron estudios comparativos de absorción para esta herramienta."},
+    {k:"oxido",     n:"Óxido de magnesio",        d:"",                   f:"MgO",                mw:40.30,  p:60.3, t:"warn", a:"Mucho magnesio por gramo, pero se absorbe poco: alrededor del 4 % (Firoz y Graber 2001) y menos que el citrato (Lindberg 1990; Walker 2003). Tiene efecto laxante demostrado en ensayos controlados (Mori 2019; Morishita 2021)."}
+  ];
+  var SUG = 0, SUGMAX = 0;
+  var salName = function(x){ return x.n + (x.d ? " (" + x.d + ")" : ""); };
+  var DEMO = {"Arroz blanco, cocido": 5, "Arepa de maíz": 6, "Caraotas o frijoles negros, cocidos": 3, "Pan blanco": 5, "Café colado": 6, "Leche entera": 5, "Pechuga de pollo, asada": 4, "Plátano, cocido": 3, "Huevo, cocido": 4, "Cambur o banana": 3, "Queso fresco": 5};
+
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var f0 = function(n){ return Math.round(n).toLocaleString('es'); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+
+  // Frecuencias: veces por semana. Se usa el punto medio de cada intervalo; "2 o más al día" se cuenta como 2.
+  var FREQ = [
+    {v:0,    t:"Nunca o casi nunca"},
+    {v:0.5,  t:"Menos de 1 vez/semana"},
+    {v:1,    t:"1 vez/semana"},
+    {v:3,    t:"2 a 4 veces/semana"},
+    {v:5.5,  t:"5 a 6 veces/semana"},
+    {v:7,    t:"1 vez al día"},
+    {v:14,   t:"2 o más veces al día"}
+  ];
+
+  var mgPorcion = function(fd){ return fd.gr * fd.mg100 / 100; };
+
+  // ---------- Pintar cuestionario de alimentos ----------
+  function pintaAlimentos(){
+    var html = "", grupo = null;
+    FOODS.forEach(function(fd, i){
+      if (fd.g !== grupo){
+        if (grupo !== null) html += "</div>";
+        grupo = fd.g;
+        html += '<div class="foodgroup"><h3>' + esc(grupo) + '</h3>';
+      }
+      var opts = FREQ.map(function(q, k){ return '<option value="' + k + '">' + q.t + '</option>'; }).join("");
+      html += '<div class="food"><label for="fd' + i + '"><span class="nm">' + esc(fd.n) + '</span>' +
+        '<span class="po">' + esc(fd.po) + ' <span class="mg pro-mg">· ' + f0(mgPorcion(fd)) + ' mg</span></span></label>' +
+        '<select id="fd' + i + '" data-i="' + i + '">' + opts + '</select></div>';
+    });
+    if (grupo !== null) html += "</div>";
+    $("#foods").innerHTML = html;
+  }
+
+  // ---------- Requerimientos ----------
+  function dri(edad, sexo){
+    for (var i = 0; i < DRI.length; i++){
+      var d = DRI[i];
+      if (edad >= d.min && edad <= d.max){
+        return {rda:d[sexo].rda, ear:d[sexo].ear, grupo:d.label + (sexo === "F" ? " · mujer" : " · hombre")};
+      }
+    }
+    return null;
+  }
+
+  // ---------- Índice de depleción de magnesio (Fan 2021) ----------
+  function mds(sexo){
+    var pts = [], total = 0, incompleto = false;
+    if ($("#diur").checked){ pts.push(["Diurético", 1]); total += 1; }
+    if ($("#ibp").checked){ pts.push(["Inhibidor de bomba de protones", 1]); total += 1; }
+    var alc = parseFloat($("#alc").value) || 0;
+    var umbral = sexo === "F" ? 1 : 2;
+    if (alc > umbral){ pts.push(["Consumo elevado de alcohol (más de " + umbral + (umbral === 1 ? " bebida" : " bebidas") + " al día)", 1]); total += 1; }
+    var egfr = parseFloat($("#egfr").value);
+    var r;
+    if (!isNaN(egfr) && egfr > 0){ r = egfr < 60 ? 2 : (egfr < 90 ? 1 : 0); }
+    else {
+      var sel = $("#renal").value;
+      if (sel === "ns"){ incompleto = true; r = 0; } else r = parseInt(sel, 10);
+    }
+    if (r > 0) { pts.push([r === 2 ? "Filtrado glomerular menor de 60" : "Filtrado glomerular de 60 a 89", r]); total += r; }
+    return {total:total, pts:pts, incompleto:incompleto, egfr:isNaN(egfr) ? null : egfr};
+  }
+
+  // ---------- Cálculo ----------
+  function calcula(e){
+    if (e) e.preventDefault();
+    var edad = parseFloat($("#edad").value);
+    if (isNaN(edad) || edad < 19 || edad > 110){
+      $("#out").innerHTML = '<div class="alert warn"><span class="mk">!</span><div><b>Falta la edad.</b>Introduce una edad entre 19 y 110 años. Esta versión usa los valores de referencia verificados para adultos.</div></div>';
+      return;
+    }
+    var sexo = $("input[name=sexo]:checked").value;
+    var req = dri(edad, sexo);
+
+    var items = FOODS.map(function(fd, i){
+      var q = FREQ[parseInt($("#fd" + i).value, 10)].v;
+      return {n:fd.n, mg: mgPorcion(fd) * q / 7};
+    });
+    var alim = items.reduce(function(a, b){ return a + b.mg; }, 0);
+    var supl = Math.max(0, parseFloat($("#supl").value) || 0);
+    var farm = Math.max(0, parseFloat($("#farmmg").value) || 0);
+    var noSabe = $("#suplns").checked;
+    var suplTotal = supl + farm;
+    var total = alim + suplTotal;
+    var m = mds(sexo);
+    var pro = document.body.dataset.mode === "pro";
+
+    // Clasificación de la ingesta total frente al EAR y la RDA (Barr, Murphy y Poos 2002)
+    var cls, tone, why;
+    if (total < req.ear){ cls = "Ingesta probablemente insuficiente"; tone = "high";
+      why = "Tu ingesta estimada está por debajo del requerimiento promedio de tu grupo. Con esa cantidad, lo más probable es que no cubras tus necesidades."; }
+    else if (total < req.rda){ cls = "Ingesta posiblemente insuficiente"; tone = "warn";
+      why = "Tu ingesta estimada supera el requerimiento promedio, pero no llega a la cantidad recomendada, que cubre a casi todas las personas sanas. Puede bastar o no."; }
+    else { cls = "Ingesta probablemente suficiente"; tone = "ok";
+      why = "Tu ingesta estimada alcanza la cantidad recomendada para tu grupo. Recuerda que el cuestionario solo aproxima lo que comes."; }
+
+    // Punto de corte: MDS > 2 (es decir, 3 o más), el usado para indicar déficit de magnesio (Costello, Fan y Wallace 2025)
+    var mdsAlto = m.total >= 3;
+    var mdsTxt = m.total === 0 ? "Bajo" : (m.total <= 2 ? "Intermedio" : "Elevado");
+    var mdsTone = m.total === 0 ? "ok" : (m.total <= 2 ? "warn" : "high");
+    var bajo = total < req.ear;
+
+    var h = "";
+    h += '<div class="dx"><span class="pill tone-' + tone + '">' + cls + '</span>' +
+         '<span class="pill tone-' + mdsTone + '">Riesgo de depleción: ' + mdsTxt + ' (MDS ' + m.total + ' de 5)</span></div>';
+    h += '<p class="why">' + why + '</p>';
+
+    // KPIs
+    h += '<div class="big">' +
+      '<div class="kpi"><div class="l">De los alimentos</div><div class="v">' + f0(alim) + ' <small>mg/día</small></div><div class="s">Estimado, aproximado</div></div>' +
+      '<div class="kpi"><div class="l">Suplementos y fármacos</div><div class="v">' + (noSabe && suplTotal === 0 ? "?" : f0(suplTotal)) + ' <small>mg/día</small></div><div class="s">' + (noSabe ? "Dosis desconocida: no sumada" : "Según lo que indicaste") + '</div></div>' +
+      '<div class="kpi"><div class="l">Recomendado para ti</div><div class="v">' + f0(req.rda) + ' <small>mg/día</small></div><div class="s">' + esc(req.grupo) + '</div></div>' +
+      '</div>';
+
+    // Barra de ingesta
+    if (req){
+    var escala = Math.max(req.rda * 1.4, total * 1.05);
+    var pc = function(x){ return Math.min(100, x / escala * 100).toFixed(1); };
+    h += '<div class="gauge" role="img" aria-label="Ingesta total ' + f0(total) + ' mg frente a un requerimiento promedio de ' + f0(req.ear) + ' y una recomendación de ' + f0(req.rda) + ' mg">' +
+      '<div class="fill supp" style="width:' + pc(total) + '%"></div>' +
+      '<div class="fill" style="width:' + pc(alim) + '%"></div>' +
+      '<div class="mk t" style="left:' + pc(req.ear) + '%"><span>Promedio ' + f0(req.ear) + '</span></div>' +
+      '<div class="mk b" style="left:' + pc(req.rda) + '%"><span>Recomendado ' + f0(req.rda) + '</span></div>' +
+      '</div>';
+    h += '<div class="legend"><span><i style="background:var(--accent)"></i>Alimentos</span><span><i style="background:#2F7FB8;opacity:.75"></i>Suplementos y fármacos</span></div>';
+    }
+
+    // Alertas
+    var al = "";
+    if (suplTotal > UL_SUPP){
+      al += '<div class="alert crit"><span class="mk">!</span><div><b>El magnesio de suplementos y medicamentos supera el límite superior tolerable.</b>Indicaste ' + f0(suplTotal) + ' mg al día; el límite para adolescentes y adultos es de ' + UL_SUPP + ' mg al día <em>solo de fuentes no alimentarias</em>. Ese límite se fijó porque la diarrea aparecía con dosis mayores. Coméntalo con tu médico antes de cambiar nada.<span class="pro-inline"> Costello et al. (2023) proponen reevaluar este UL con datos más recientes; mientras no se modifique, sigue siendo la referencia oficial.</span></div></div>';
+    }
+    if (noSabe){
+      al += '<div class="alert info"><span class="mk">i</span><div><b>Hay un suplemento o medicamento sin dosis conocida.</b>No se sumó al total. Lleva el envase a tu consulta.</div></div>';
+    }
+    if ((m.egfr !== null && m.egfr < 60 || $("#renal").value === "2") && (suplTotal > 0 || noSabe)){
+      al += '<div class="alert crit"><span class="mk">!</span><div><b>Función renal disminuida y uso de magnesio.</b>La insuficiencia renal predispone a efectos adversos del magnesio suplementario y se recomienda precaución (Sankararaman et al., 2026). Cualquier suplemento, antiácido o laxante con magnesio debe estar supervisado por tu médico.</div></div>';
+    }
+    if (m.incompleto){
+      al += '<div class="alert warn"><span class="mk">!</span><div><b>No indicaste tu función renal.</b>El índice se calculó como si fuera normal, así que podría estar subestimado. El dato aparece en tus análisis como <em>filtrado glomerular estimado</em> (eGFR).</div></div>';
+    }
+    if (al) h += '<div class="section">' + al + '</div>';
+
+    // MDS
+    h += '<div class="section"><h3>Índice de depleción de magnesio</h3>';
+    h += '<div class="mds" aria-hidden="true">' + [1,2,3,4,5].map(function(k){ return '<span class="' + (k <= m.total ? "on" : "") + '"></span>'; }).join("") + '</div>';
+    h += '<p class="why"><b>' + m.total + ' de 5 puntos.</b> ' + (m.pts.length ? "Suman: " + m.pts.map(function(p){ return esc(p[0]) + " (+" + p[1] + ")"; }).join("; ") + "." : "Ningún factor de pérdida marcado.") + '</p>';
+    h += '<p class="hint" style="margin-top:6px">Este índice estima cuánto se reduce la capacidad del riñón para retener magnesio. No mide el magnesio del cuerpo.</p></div>';
+
+    // Matriz combinada
+    if (req){
+    var cel = function(on, t, d){ return '<div class="c' + (on ? " on" : "") + '"><b>' + t + '</b>' + d + '</div>'; };
+    h += '<div class="section"><h3>Cómo se combinan los dos resultados</h3>';
+    h += '<p class="hint" style="margin-top:6px">En el estudio original, la asociación del índice con inflamación y mortalidad apareció sobre todo en quienes comían menos magnesio del requerimiento promedio.</p>';
+    h += '<div class="matrix">' +
+      '<div></div><div class="h">Índice 0–2</div><div class="h">Índice 3 o más</div>' +
+      '<div class="h">Ingesta ≥ promedio</div>' + cel(!bajo && !mdsAlto, "Situación favorable", "Mantén tu alimentación.") + cel(!bajo && mdsAlto, "Vigilar pérdidas", "Comenta tus factores de pérdida en consulta.") +
+      '<div class="h">Ingesta &lt; promedio</div>' + cel(bajo && !mdsAlto, "Mejorar la alimentación", "Aumenta los alimentos ricos en magnesio.") + cel(bajo && mdsAlto, "Prioridad de consulta", "Ingesta baja y pérdidas aumentadas: conviene valoración médica.") +
+      '</div></div>';
+    }
+
+    // Principales aportes
+    var top = items.filter(function(x){ return x.mg > 0; }).sort(function(a, b){ return b.mg - a.mg; }).slice(0, 6);
+    if (top.length){
+      var mx = top[0].mg;
+      h += '<div class="section"><h3>De dónde viene tu magnesio</h3><ul class="contrib">' +
+        top.map(function(x){ return '<li><span>' + esc(x.n) + '</span><span class="n">' + f0(x.mg) + ' mg</span><span class="tr"><i style="width:' + (x.mg / mx * 100).toFixed(1) + '%"></i></span></li>'; }).join("") +
+        '</ul></div>';
+    }
+
+    // Ideas: alimentos con más magnesio por porción que la persona come poco
+    var ideas = FOODS.map(function(fd, i){ return {fd:fd, q:FREQ[parseInt($("#fd" + i).value, 10)].v}; })
+      .filter(function(x){ return x.q < 3; })
+      .sort(function(a, b){ return mgPorcion(b.fd) - mgPorcion(a.fd); }).slice(0, 5);
+    if (total < req.rda && ideas.length){
+      h += '<div class="section"><h3>Alimentos que podrías comer más a menudo</h3><ul class="steps">' +
+        ideas.map(function(x, k){ return '<li><span class="ic">' + (k + 1) + '</span><div><b>' + esc(x.fd.n) + '</b><p>' + esc(x.fd.po) + ' aporta unos ' + f0(mgPorcion(x.fd)) + ' mg.</p></div></li>'; }).join("") +
+        '</ul><p class="hint" style="margin-top:8px">Si tienes enfermedad renal, diabetes u otra condición que limite tu dieta, ajusta estos cambios con tu médico o nutricionista.</p></div>';
+    }
+
+    // Detalle profesional
+    if (pro){
+      h += '<div class="section"><h3>Detalle del cálculo</h3><div class="tablewrap"><table>' +
+        '<tr><th>Parámetro</th><th>Valor</th></tr>' +
+        '<tr><td>Grupo de referencia</td><td>' + esc(req.grupo) + '</td></tr>' +
+        '<tr><td>EAR / RDA</td><td>' + req.ear + ' / ' + req.rda + ' mg/día</td></tr>' +
+        '<tr><td>Ingesta alimentaria estimada</td><td>' + f0(alim) + ' mg/día</td></tr>' +
+        '<tr><td>Suplementos + fármacos</td><td>' + f0(suplTotal) + ' mg/día' + (noSabe ? " (más una dosis desconocida)" : "") + ' · UL ' + UL_SUPP + ' mg/día</td></tr>' +
+        '<tr><td>Ingesta total / EAR</td><td>' + Math.round(total / req.ear * 100) + ' %</td></tr>' +
+        '<tr><td>MDS</td><td>' + m.total + (m.egfr !== null ? " (eGFR " + f0(m.egfr) + ")" : "") + (m.incompleto ? " · función renal no informada" : "") + '</td></tr>' +
+        '</table></div><p class="hint" style="margin-top:8px">La comparación con el EAR estima la probabilidad de inadecuación. La comparación con la RDA solo es cualitativa y supone que se conoce la ingesta habitual a largo plazo, algo que un cuestionario no garantiza (Barr, Murphy y Poos, 2002).</p></div>';
+    }
+
+
+    // Suplementación orientativa: hasta la RDA, sin superar el UL de suplementos
+    var renalBaja = (m.egfr !== null && m.egfr < 60) || (m.egfr === null && $("#renal").value === "2");
+    var gap = req.rda - total, room = UL_SUPP - suplTotal;
+    SUGMAX = renalBaja ? 0 : Math.max(0, Math.min(gap, room));
+    SUG = Math.round(SUGMAX);
+    h += '<div class="section"><h3>Si quieres complementar con un suplemento</h3>';
+    if (renalBaja){
+      h += '<div class="alert crit"><span class="mk">!</span><div><b>No se calcula una cantidad.</b>Con la función renal disminuida aumenta el riesgo de efectos adversos del magnesio suplementario. Solo tu médico puede indicarlo y ajustar la dosis.</div></div>';
+    } else if (room <= 0){
+      h += '<div class="alert warn"><span class="mk">!</span><div><b>No hay margen para añadir más.</b>Lo que ya tomas en suplementos o medicamentos alcanza o supera el límite de ' + UL_SUPP + ' mg/día. Revísalo con tu médico.</div></div>';
+    } else if (gap <= 0){
+      h += '<div class="alert info"><span class="mk">i</span><div><b>No hace falta un complemento para llegar a lo recomendado.</b>Con lo que comes' + (suplTotal > 0 ? ' y lo que ya tomas' : '') + ' alcanzas la cantidad recomendada para tu grupo.</div></div>';
+    } else {
+      h += '<div class="big"><div class="kpi"><div class="l">Complemento orientativo</div><div class="v">hasta ' + f0(SUG) + ' <small>mg/día de magnesio elemental</small></div>' +
+        '<div class="s">Recomendado ' + f0(req.rda) + ' − lo que ya recibes ' + f0(total) + ' = ' + f0(gap) + ' mg' + (gap > room ? '; limitado a ' + f0(room) + ' mg para no superar ' + UL_SUPP + ' mg/día de suplementos' : '') + '.</div></div></div>';
+      if ($("#renal").value === "ns" && m.egfr === null){
+        h += '<div class="alert warn"><span class="mk">!</span><div><b>Antes de empezar, confirma tu función renal.</b>Si tus riñones funcionan menos, esta cifra no aplica.</div></div>';
+      }
+    }
+    var meta = SUG > 0 ? SUG : 100;
+    h += '<p class="why" style="margin-top:10px">Lo que cuenta es el <b>magnesio elemental</b>, no el peso del compuesto. Cada tipo aporta un porcentaje distinto de magnesio:</p>';
+    h += '<div class="tablewrap" style="margin-top:8px"><table><tr><th>Tipo</th><th>Magnesio elemental</th><th>Para ' + f0(meta) + ' mg elementales necesitas</th>' + (pro ? '<th>Fórmula · PM</th>' : '') + '<th>Absorción: lo que dice la evidencia</th></tr>' +
+      SALES.map(function(x){ return '<tr><td><b>' + esc(x.n) + '</b>' + (x.d ? '<br><span class="hint">' + esc(x.d) + '</span>' : '') + '</td><td>' + x.p.toLocaleString('es') + ' %</td><td><b>' + f0(meta / x.p * 100) + ' mg</b> del compuesto</td>' +
+        (pro ? '<td class="src">' + x.f + ' · ' + x.mw.toLocaleString('es') + '</td>' : '') + '<td class="src">' + esc(x.a) + '</td></tr>'; }).join("") +
+      '</table></div>';
+    h += '<div class="card pad" style="margin-top:14px;box-shadow:none;background:var(--surface-2)"><h3>Lee la etiqueta de tu suplemento</h3>' +
+      '<p class="hint" style="margin:4px 0 10px">Si la etiqueta ya dice «magnesio elemental» o «aporta X mg de magnesio», usa esa cifra: es la más fiable. Si solo indica el peso del compuesto, calcúlalo aquí.</p>' +
+      '<div class="row"><label class="f">Tipo de magnesio<select id="lbl-sal">' + SALES.map(function(x){ return '<option value="' + x.k + '">' + esc(salName(x)) + '</option>'; }).join("") + '</select></label>' +
+      '<label class="f">Compuesto por cápsula o tableta <span class="u">(mg)</span><input type="number" id="lbl-mg" min="1" max="5000" step="1" placeholder="Ej.: 500"></label></div>' +
+      '<p class="why" id="lbl-out" style="margin-top:10px"></p></div>';
+    h += '<p class="hint" style="margin-top:10px"><b>Es una orientación, no una prescripción.</b> Confírmala con tu médico, sobre todo si tomas otros medicamentos. La diarrea es el efecto que limita la dosis de los suplementos.</p></div>';
+
+    h += '<div class="cta"><b>¿Quieres revisar tu magnesio con criterio clínico?</b><p>En consulta valoramos tu alimentación, tus medicamentos, tu función renal y, si hace falta, otras pruebas además del magnesio en sangre.</p><a class="btn" href="' + LINK_AGENDA + '" target="_blank" rel="noopener">Agendar consulta</a></div>';
+
+    $("#out").innerHTML = h;
+    etiqueta();
+    if (window.innerWidth < 920) $("#res").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  // ---------- Tablas profesionales y referencias ----------
+  function pintaPro(){
+    var t = '<div class="card pad" style="margin-top:14px"><h3>Ingestas dietéticas de referencia de magnesio (adultos)</h3>' +
+      '<p class="hint" style="margin:6px 0 12px">mg/día. EAR: requerimiento promedio estimado. RDA: aporte dietético recomendado. ' + esc(DRI_SRC) + '</p>' +
+      '<div class="tablewrap"><table><tr><th>Edad</th><th>Mujer EAR / RDA</th><th>Hombre EAR / RDA</th></tr>' +
+      DRI.map(function(d){ var c = function(x){ return x ? x.ear + " / " + x.rda : "—"; };
+        return '<tr><td>' + esc(d.label) + '</td><td>' + c(d.F) + '</td><td>' + c(d.M) + '</td></tr>'; }).join("") +
+      '</table></div><p class="hint" style="margin-top:8px"><b>Fuera del alcance de esta herramienta:</b> menores de 19 años, embarazo y lactancia. Una fuente secundaria (Costello et al., 2023) cita para mujeres adultas un EAR de 300–335 mg/día que no coincide con las demás fuentes revisadas; aquí se usan los valores en los que coinciden varias fuentes independientes.</p><p class="hint" style="margin-top:8px">Límite superior tolerable (UL): <b>' + UL_SUPP + ' mg/día de magnesio procedente solo de suplementos y fármacos</b> en adolescentes y adultos. El UL no se aplica al magnesio de los alimentos. Se fijó por la diarrea como efecto limitante. Costello et al. (2023) proponen reevaluarlo.</p></div>';
+
+    t += '<div class="card pad" style="margin-top:14px"><h3>Índice de depleción de magnesio (MDS)</h3>' +
+      '<div class="tablewrap"><table><tr><th>Componente</th><th>Puntos</th></tr>' +
+      '<tr><td>Uso actual de diurético</td><td>1</td></tr>' +
+      '<tr><td>Uso actual de inhibidor de bomba de protones</td><td>1</td></tr>' +
+      '<tr><td>eGFR 60–90 ml/min/1,73 m²</td><td>1</td></tr>' +
+      '<tr><td>eGFR &lt; 60 ml/min/1,73 m²</td><td>2</td></tr>' +
+      '<tr><td>Consumo elevado de alcohol: &gt; 1 bebida/día (mujer) o &gt; 2 bebidas/día (hombre); 1 bebida ≈ 14 g de etanol</td><td>1</td></tr>' +
+      '</table></div><p class="hint" style="margin-top:8px">Rango de 0 a 5. Fan et al. (<i>J Nutr</i> 2021) lo validaron frente a la prueba de tolerancia al magnesio en 77 adultos: AUC de 0,63 (IC 95 %: 0,50–0,76) para el modelo con MDS, edad y sexo, frente a 0,53 para el magnesio sérico solo. <b>Es una discriminación modesta.</b> Según la revisión de alcance de Costello, Fan y Wallace (<i>Nutrients</i> 2025; 48 artículos, todos con datos de NHANES), la agrupación más usada es <b>0 / 1 / 2 / ≥3</b> (27 artículos), y un <b>MDS &gt; 2</b> se ha usado para indicar déficit de magnesio asociado a inflamación sistémica y mortalidad cardiovascular. Esta herramienta usa por eso <b>≥3 como elevado</b>. Algunos estudios usan ≥2 (p. ej., Tian et al. 2024), y la propia revisión advierte que el punto de corte podría variar según la población y la enfermedad, y que el índice <i>"needs further evaluation and validation before being accepted for general use"</i>. Todos los datos proceden de estudios observacionales; no hay ensayos clínicos que prueben que intervenir guiándose por el MDS mejore los desenlaces. La mayoría de los artículos calculó el eGFR con CKD-EPI 2021. La definición de los componentes procede de estudios posteriores; el texto completo del artículo original no se pudo consultar.</p></div>';
+
+    t += '<div class="card pad" style="margin-top:14px"><h3>Por qué no basta el magnesio sérico</h3>' +
+      '<p class="hint" style="margin-top:6px">El intervalo de referencia habitual del magnesio sérico (0,75–0,95 mmol/l) procede de la distribución poblacional de NHANES I (1974), no de desenlaces clínicos. Puede existir un déficit subclínico con valores dentro de ese intervalo (Costello et al., <i>Adv Nutr</i> 2016).</p></div>';
+
+    t += '<div class="card pad" style="margin-top:14px"><h3>Contenido de magnesio de los alimentos del cuestionario</h3>' +
+      '<p class="hint" style="margin:6px 0 12px">' + esc(FOOD_SRC) + '</p><div class="tablewrap"><table><tr><th>Alimento</th><th>Porción</th><th>mg/100 g</th><th>mg/porción</th><th>Fuente</th></tr>' +
+      FOODS.map(function(fd){ return '<tr><td>' + esc(fd.n) + '</td><td>' + esc(fd.po) + '</td><td>' + fd.mg100 + '</td><td>' + f0(mgPorcion(fd)) + '</td><td class="src">' + esc(fd.src) + '</td></tr>'; }).join("") +
+      '</table></div><p class="hint" style="margin-top:8px"><b>Limitaciones del cuestionario.</b> No está validado. Usa el punto medio de cada intervalo de frecuencia y cuenta "2 o más al día" como 2, por lo que tiende a subestimar a quien come mucho de un alimento. No incluye el magnesio del agua ni el de alimentos fuera de la lista.</p></div>';
+    var pt = $("#protables"); if (pt) pt.innerHTML = t;
+    $("#refs").innerHTML = REFS.map(function(r){ return "<li>" + r + "</li>"; }).join("");
+  }
+
+  // ---------- Eventos ----------
+  function modo(){
+    var v = $("input[name=modo]:checked").value;
+    document.body.dataset.mode = v;
+    $("#modenote").textContent = v === "pro"
+      ? "Muestra los valores de referencia, el desglose del cálculo, el campo de eGFR y las limitaciones metodológicas."
+      : "Lenguaje sencillo. Orientado a preparar tu consulta.";
+    if ($("#out .dx")) calcula();
+  }
+  $$("input[name=modo]").forEach(function(r){ r.addEventListener("change", modo); });
+
+  function etiqueta(){
+    var out = $("#lbl-out"); if (!out) return;
+    var x = SALES.filter(function(y){ return y.k === $("#lbl-sal").value; })[0];
+    var mg = parseFloat($("#lbl-mg").value);
+    if (isNaN(mg) || mg <= 0){ out.innerHTML = "Introduce los mg del compuesto que indica la etiqueta."; return; }
+    var el = mg * x.p / 100;
+    var t = "Cada unidad aporta unos <b>" + f0(el) + " mg de magnesio elemental</b> (" + f0(mg) + " mg × " + x.p.toLocaleString('es') + " %).";
+    if (SUG > 0){
+      var n = Math.floor(SUGMAX / el);
+      t += n >= 1 ? " Para tu complemento orientativo de " + f0(SUG) + " mg serían hasta <b>" + n + (n === 1 ? " unidad" : " unidades") + " al día</b>, lo que aporta " + f0(n * el) + " mg."
+                  : " Una sola unidad supera tu complemento orientativo de " + f0(SUG) + " mg: busca una presentación más pequeña o consúltalo.";
+    }
+    out.innerHTML = t;
+  }
+  $("#out").addEventListener("input", function(e){ if (e.target.id === "lbl-mg") etiqueta(); });
+  $("#out").addEventListener("change", function(e){ if (e.target.id === "lbl-sal") etiqueta(); });
+  $("#f").addEventListener("submit", calcula);
+  $("#demo").addEventListener("click", function(){
+    $("#edad").value = 56; $$("input[name=sexo]")[0].checked = true;
+    FOODS.forEach(function(fd, i){ $("#fd" + i).value = (DEMO[fd.n] !== undefined ? DEMO[fd.n] : 0); });
+    $("#supl").value = ""; $("#farmmg").value = ""; $("#suplns").checked = false;
+    $("#diur").checked = true; $("#ibp").checked = true; $("#alc").value = 0; $("#renal").value = "1"; $("#egfr").value = "";
+    calcula();
+  });
+
+  pintaAlimentos();
+  pintaPro();
+})();
+</script>
+</body></html>
