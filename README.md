@@ -66,9 +66,9 @@ estima dos cosas que sí pueden estimarse:
 
 No mide el magnesio celular ni el corporal total. El cuestionario **no está
 validado**. El MDS tuvo una discriminación modesta en su validación (AUC 0,63).
-Cubre solo a **adultos de 19 años o más**, sin embarazo ni lactancia: los
-valores de referencia de esos grupos no se pudieron verificar en fuentes
-primarias y no se estiman.
+Es solo para **adultos de 19 años o más**. **No incluye embarazo ni
+lactancia**, por decisión clínica: en esas etapas el magnesio lo valora el
+médico tratante.
 
 ## Licencia
 

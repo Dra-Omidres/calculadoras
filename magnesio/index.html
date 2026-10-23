@@ -225,20 +225,13 @@ body[data-mode="pro"] .pro-inline{display:inline}
 
     <fieldset>
       <legend><span class="n">1</span>Tus datos</legend>
-      <p class="hint" style="margin-bottom:10px">Tu requerimiento de magnesio depende de la edad y el sexo. Esta versión es para adultos de 19 años o más.</p>
+      <p class="hint" style="margin-bottom:10px">Tu requerimiento de magnesio depende de la edad y el sexo. Para adultos de 19 años o más. <b>No está diseñada para embarazo ni lactancia</b>: en esas etapas tu médico u obstetra debe valorar tu magnesio.</p>
       <div class="segm">
         <label><input type="radio" name="sexo" value="F" checked>Mujer</label>
         <label><input type="radio" name="sexo" value="M">Hombre</label>
       </div>
       <div class="row">
         <label class="f">Edad <span class="u">(años)</span><input type="number" id="edad" min="19" max="110" step="1" required></label>
-        <label class="f" id="estado-w">Situación
-          <select id="estado">
-            <option value="no">Ninguna</option>
-            <option value="emb">Embarazo</option>
-            <option value="lac">Lactancia</option>
-          </select>
-        </label>
       </div>
     </fieldset>
 
@@ -306,7 +299,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
 </section>
 
 <footer><div class="wrap">
-  <p class="disc"><b>Esta herramienta no diagnostica.</b> Estima la ingesta habitual a partir de un cuestionario de frecuencia de consumo <b>no validado</b>, que solo aproxima la ingesta real, y calcula el Índice de depleción de magnesio a partir de datos autorreportados. No mide el magnesio intracelular ni el contenido corporal total. Un resultado favorable no descarta un déficit, y uno desfavorable no lo confirma. Úsala para preparar la conversación clínica, nunca para sustituirla. No inicies ni suspendas suplementos o medicamentos sin indicación médica. Los datos introducidos no se almacenan ni se transmiten.</p>
+  <p class="disc"><b>Esta herramienta no diagnostica.</b> Estima la ingesta habitual a partir de un cuestionario de frecuencia de consumo <b>no validado</b>, que solo aproxima la ingesta real, y calcula el Índice de depleción de magnesio a partir de datos autorreportados. No mide el magnesio intracelular ni el contenido corporal total. Un resultado favorable no descarta un déficit, y uno desfavorable no lo confirma. Úsala para preparar la conversación clínica, nunca para sustituirla. No está diseñada para embarazo, lactancia ni menores de 19 años. No inicies ni suspendas suplementos o medicamentos sin indicación médica. Los datos introducidos no se almacenan ni se transmiten.</p>
 </div></footer>
 
 <script>
@@ -411,8 +404,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
       return;
     }
     var sexo = $("input[name=sexo]:checked").value;
-    var estado = sexo === "F" ? $("#estado").value : "no";
-    var req = estado === "no" ? dri(edad, sexo) : null;
+    var req = dri(edad, sexo);
 
     var items = FOODS.map(function(fd, i){
       var q = FREQ[parseInt($("#fd" + i).value, 10)].v;
@@ -429,9 +421,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
 
     // Clasificación de la ingesta total frente al EAR y la RDA (Barr, Murphy y Poos 2002)
     var cls, tone, why;
-    if (!req){ cls = "Adecuación no calculada"; tone = "info";
-      why = "En embarazo y lactancia las necesidades de magnesio cambian. Esta herramienta no compara tu ingesta con un requerimiento porque los valores de referencia por edad para esta etapa no se pudieron verificar en fuentes primarias. Se muestran tu ingesta estimada y tu índice de pérdidas para que los revises con tu médico o tu obstetra."; }
-    else if (total < req.ear){ cls = "Ingesta probablemente insuficiente"; tone = "high";
+    if (total < req.ear){ cls = "Ingesta probablemente insuficiente"; tone = "high";
       why = "Tu ingesta estimada está por debajo del requerimiento promedio de tu grupo. Con esa cantidad, lo más probable es que no cubras tus necesidades."; }
     else if (total < req.rda){ cls = "Ingesta posiblemente insuficiente"; tone = "warn";
       why = "Tu ingesta estimada supera el requerimiento promedio, pero no llega a la cantidad recomendada, que cubre a casi todas las personas sanas. Puede bastar o no."; }
@@ -442,7 +432,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
     var mdsAlto = m.total >= 3;
     var mdsTxt = m.total === 0 ? "Bajo" : (m.total <= 2 ? "Intermedio" : "Elevado");
     var mdsTone = m.total === 0 ? "ok" : (m.total <= 2 ? "warn" : "high");
-    var bajo = req ? total < req.ear : null;
+    var bajo = total < req.ear;
 
     var h = "";
     h += '<div class="dx"><span class="pill tone-' + tone + '">' + cls + '</span>' +
@@ -453,7 +443,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
     h += '<div class="big">' +
       '<div class="kpi"><div class="l">De los alimentos</div><div class="v">' + f0(alim) + ' <small>mg/día</small></div><div class="s">Estimado, aproximado</div></div>' +
       '<div class="kpi"><div class="l">Suplementos y fármacos</div><div class="v">' + (noSabe && suplTotal === 0 ? "?" : f0(suplTotal)) + ' <small>mg/día</small></div><div class="s">' + (noSabe ? "Dosis desconocida: no sumada" : "Según lo que indicaste") + '</div></div>' +
-      (req ? '<div class="kpi"><div class="l">Recomendado para ti</div><div class="v">' + f0(req.rda) + ' <small>mg/día</small></div><div class="s">' + esc(req.grupo) + '</div></div>' : '') +
+      '<div class="kpi"><div class="l">Recomendado para ti</div><div class="v">' + f0(req.rda) + ' <small>mg/día</small></div><div class="s">' + esc(req.grupo) + '</div></div>' +
       '</div>';
 
     // Barra de ingesta
@@ -482,9 +472,6 @@ body[data-mode="pro"] .pro-inline{display:inline}
     }
     if (m.incompleto){
       al += '<div class="alert warn"><span class="mk">!</span><div><b>No indicaste tu función renal.</b>El índice se calculó como si fuera normal, así que podría estar subestimado. El dato aparece en tus análisis como <em>filtrado glomerular estimado</em> (eGFR).</div></div>';
-    }
-    if (estado !== "no"){
-      al += '<div class="alert info"><span class="mk">i</span><div><b>Embarazo o lactancia.</b>Las necesidades cambian en esta etapa. Cualquier suplemento debe indicarlo tu médico o tu obstetra.</div></div>';
     }
     if (al) h += '<div class="section">' + al + '</div>';
 
@@ -519,7 +506,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
     var ideas = FOODS.map(function(fd, i){ return {fd:fd, q:FREQ[parseInt($("#fd" + i).value, 10)].v}; })
       .filter(function(x){ return x.q < 3; })
       .sort(function(a, b){ return mgPorcion(b.fd) - mgPorcion(a.fd); }).slice(0, 5);
-    if (req && total < req.rda && ideas.length){
+    if (total < req.rda && ideas.length){
       h += '<div class="section"><h3>Alimentos que podrías comer más a menudo</h3><ul class="steps">' +
         ideas.map(function(x, k){ return '<li><span class="ic">' + (k + 1) + '</span><div><b>' + esc(x.fd.n) + '</b><p>' + esc(x.fd.po) + ' aporta unos ' + f0(mgPorcion(x.fd)) + ' mg.</p></div></li>'; }).join("") +
         '</ul><p class="hint" style="margin-top:8px">Si tienes enfermedad renal, diabetes u otra condición que limite tu dieta, ajusta estos cambios con tu médico o nutricionista.</p></div>';
@@ -529,11 +516,11 @@ body[data-mode="pro"] .pro-inline{display:inline}
     if (pro){
       h += '<div class="section"><h3>Detalle del cálculo</h3><div class="tablewrap"><table>' +
         '<tr><th>Parámetro</th><th>Valor</th></tr>' +
-        (req ? '<tr><td>Grupo de referencia</td><td>' + esc(req.grupo) + '</td></tr>' +
-        '<tr><td>EAR / RDA</td><td>' + req.ear + ' / ' + req.rda + ' mg/día</td></tr>' : '<tr><td>Grupo de referencia</td><td>Embarazo o lactancia: sin valores verificados</td></tr>') +
+        '<tr><td>Grupo de referencia</td><td>' + esc(req.grupo) + '</td></tr>' +
+        '<tr><td>EAR / RDA</td><td>' + req.ear + ' / ' + req.rda + ' mg/día</td></tr>' +
         '<tr><td>Ingesta alimentaria estimada</td><td>' + f0(alim) + ' mg/día</td></tr>' +
         '<tr><td>Suplementos + fármacos</td><td>' + f0(suplTotal) + ' mg/día' + (noSabe ? " (más una dosis desconocida)" : "") + ' · UL ' + UL_SUPP + ' mg/día</td></tr>' +
-        (req ? '<tr><td>Ingesta total / EAR</td><td>' + Math.round(total / req.ear * 100) + ' %</td></tr>' : '') +
+        '<tr><td>Ingesta total / EAR</td><td>' + Math.round(total / req.ear * 100) + ' %</td></tr>' +
         '<tr><td>MDS</td><td>' + m.total + (m.egfr !== null ? " (eGFR " + f0(m.egfr) + ")" : "") + (m.incompleto ? " · función renal no informada" : "") + '</td></tr>' +
         '</table></div><p class="hint" style="margin-top:8px">La comparación con el EAR estima la probabilidad de inadecuación. La comparación con la RDA solo es cualitativa y supone que se conoce la ingesta habitual a largo plazo, algo que un cuestionario no garantiza (Barr, Murphy y Poos, 2002).</p></div>';
     }
@@ -551,7 +538,7 @@ body[data-mode="pro"] .pro-inline{display:inline}
       '<div class="tablewrap"><table><tr><th>Edad</th><th>Mujer EAR / RDA</th><th>Hombre EAR / RDA</th></tr>' +
       DRI.map(function(d){ var c = function(x){ return x ? x.ear + " / " + x.rda : "—"; };
         return '<tr><td>' + esc(d.label) + '</td><td>' + c(d.F) + '</td><td>' + c(d.M) + '</td></tr>'; }).join("") +
-      '</table></div><p class="hint" style="margin-top:8px"><b>No incluidos:</b> menores de 19 años, embarazo y lactancia. Sus valores por grupo de edad no se pudieron verificar en fuentes primarias y la herramienta no los estima. Una fuente secundaria (Costello et al., 2023) cita para mujeres adultas un EAR de 300–335 mg/día que no coincide con las demás fuentes revisadas; aquí se usan los valores en los que coinciden varias fuentes independientes.</p><p class="hint" style="margin-top:8px">Límite superior tolerable (UL): <b>' + UL_SUPP + ' mg/día de magnesio procedente solo de suplementos y fármacos</b> en adolescentes y adultos. El UL no se aplica al magnesio de los alimentos. Se fijó por la diarrea como efecto limitante. Costello et al. (2023) proponen reevaluarlo.</p></div>';
+      '</table></div><p class="hint" style="margin-top:8px"><b>Fuera del alcance de esta herramienta:</b> menores de 19 años, embarazo y lactancia. Una fuente secundaria (Costello et al., 2023) cita para mujeres adultas un EAR de 300–335 mg/día que no coincide con las demás fuentes revisadas; aquí se usan los valores en los que coinciden varias fuentes independientes.</p><p class="hint" style="margin-top:8px">Límite superior tolerable (UL): <b>' + UL_SUPP + ' mg/día de magnesio procedente solo de suplementos y fármacos</b> en adolescentes y adultos. El UL no se aplica al magnesio de los alimentos. Se fijó por la diarrea como efecto limitante. Costello et al. (2023) proponen reevaluarlo.</p></div>';
 
     t += '<div class="card pad" style="margin-top:14px"><h3>Índice de depleción de magnesio (MDS)</h3>' +
       '<div class="tablewrap"><table><tr><th>Componente</th><th>Puntos</th></tr>' +
@@ -582,16 +569,10 @@ body[data-mode="pro"] .pro-inline{display:inline}
       : "Lenguaje sencillo, sin dosis de suplementos. Orientado a preparar tu consulta.";
     if ($("#out .dx")) calcula();
   }
-  function sexoCambia(){
-    var f = $("input[name=sexo]:checked").value === "F";
-    $("#estado-w").style.visibility = f ? "visible" : "hidden";
-  }
   $$("input[name=modo]").forEach(function(r){ r.addEventListener("change", modo); });
-  $$("input[name=sexo]").forEach(function(r){ r.addEventListener("change", sexoCambia); });
   $("#f").addEventListener("submit", calcula);
   $("#demo").addEventListener("click", function(){
-    $("#edad").value = 56; $$("input[name=sexo]")[0].checked = true; sexoCambia();
-    $("#estado").value = "no";
+    $("#edad").value = 56; $$("input[name=sexo]")[0].checked = true;
     FOODS.forEach(function(fd, i){ $("#fd" + i).value = (DEMO[fd.n] !== undefined ? DEMO[fd.n] : 0); });
     $("#supl").value = ""; $("#farmmg").value = ""; $("#suplns").checked = false;
     $("#diur").checked = true; $("#ibp").checked = true; $("#alc").value = 0; $("#renal").value = "1"; $("#egfr").value = "";
@@ -600,7 +581,6 @@ body[data-mode="pro"] .pro-inline{display:inline}
 
   pintaAlimentos();
   pintaPro();
-  sexoCambia();
 })();
 </script>
 </body></html>
