@@ -754,6 +754,11 @@ body[data-mode="pro"] .pro-inline{display:inline}
 
   pintaAlimentos();
   pintaPro();
+  // ?modo=pro en el enlace abre directamente el modo profesional (p. ej., para presentaciones a médicos)
+  if (/[?&]modo=pro\b/.test(location.search) && $("input[name=modo][value=pro]")){
+    $("input[name=modo][value=pro]").checked = true;
+    modo();
+  }
 })();
 </script>
 </body></html>
