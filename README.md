@@ -35,13 +35,19 @@ Estima a qué perfil de conducta alimentaria se aproxima el patrón del paciente
 - **Bloqueos de seguridad.** Señala cuándo el paciente no debe iniciar cambios por
   su cuenta, con criterios distintos para alimentación y para ejercicio.
 
-### Envío opcional del resultado (Google Forms)
+### Llevarse los resultados
 
-Al final del resultado puede aparecer el botón **Recibir mi resultado**. Abre un
-formulario de Google con el resumen ya escrito; solo se envía si la persona
-completa sus datos, acepta el consentimiento y pulsa «Enviar». El botón está
-oculto mientras `FORM.url` esté vacío (configuración al inicio del script de
-`magnesio/index.html`). Tras configurarlo, ejecutar `python3 tools/build-paciente.py`.
+Al final del resultado:
+
+- **Modo paciente:** botones *Recibir mis resultados en mi correo* y *Agendar consulta*.
+- **Modo profesional:** botón *Recibir los resultados en mi correo*.
+
+Mientras `FORM.url` esté vacío, el botón de correo abre la aplicación de correo
+de la persona con un resumen listo para enviárselo (enlace `mailto:`); los datos
+no llegan a la consulta. Cuando se configure `FORM.url` (inicio del script de
+`magnesio/index.html`), el botón abre el formulario de Google prellenado; activar
+en Google Forms el envío de una copia de las respuestas a quien responde. Tras
+cambiar la configuración, ejecutar `python3 tools/build-paciente.py`.
 
 El campo `codigo` guarda la frecuencia de cada alimento como `v1:` seguido de un
 dígito por alimento, en el orden de `magnesio/codigo-alimentos.csv`
