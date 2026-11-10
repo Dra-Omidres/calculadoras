@@ -585,7 +585,8 @@ body[data-mode="pro"] .pro-inline{display:inline}
     var gap = req.rda - total, room = UL_SUPP - suplTotal;
     SUGMAX = renalBaja ? 0 : Math.max(0, Math.min(gap, room));
     SUG = Math.round(SUGMAX);
-    h += '<div class="section"><h3>Si quieres complementar con un suplemento</h3>';
+    if (pro){
+    h += '<div class="section"><h3>Suplementación orientativa</h3><p class="hint" style="margin-top:4px">Visible solo en modo profesional. En modo paciente no se muestran dosis, para no favorecer la automedicación.</p>';
     if (renalBaja){
       h += '<div class="alert crit"><span class="mk">!</span><div><b>No se calcula una cantidad.</b>Con la función renal disminuida aumenta el riesgo de efectos adversos del magnesio suplementario. Solo tu médico puede indicarlo y ajustar la dosis.</div></div>';
     } else if (room <= 0){
@@ -611,40 +612,66 @@ body[data-mode="pro"] .pro-inline{display:inline}
       '<label class="f">Compuesto por cápsula o tableta <span class="u">(mg)</span><input type="number" id="lbl-mg" min="1" max="5000" step="1" placeholder="Ej.: 500"></label></div>' +
       '<p class="why" id="lbl-out" style="margin-top:10px"></p></div>';
     h += '<p class="hint" style="margin-top:10px"><b>Es una orientación, no una prescripción.</b> Confírmala con tu médico, sobre todo si tomas otros medicamentos. La diarrea es el efecto que limita la dosis de los suplementos.</p></div>';
+    } else {
+      // Paciente: sin dosis. Se orienta a la consulta para evitar la automedicación.
+      h += '<div class="section"><h3>¿Necesitas un suplemento?</h3>';
+      if (renalBaja){
+        h += '<div class="alert crit"><span class="mk">!</span><div><b>No tomes magnesio por tu cuenta.</b>Con la función renal disminuida, el magnesio de suplementos, antiácidos o laxantes puede causar efectos adversos. Solo tu médico puede indicarlo.</div></div>';
+      } else if (gap > 0 && room > 0){
+        h += '<div class="alert warn"><span class="mk">!</span><div><b>Tu resultado sugiere que podrías necesitar un suplemento, pero no lo empieces por tu cuenta.</b>Hay muchos tipos de magnesio, que aportan cantidades muy distintas y no se absorben igual, y en algunas personas pueden no ser seguros. El tipo y la dosis debe indicarlos un médico, según tu salud y tus medicamentos.</div></div>';
+      } else if (room <= 0){
+        h += '<div class="alert warn"><span class="mk">!</span><div><b>Revisa con tu médico lo que ya tomas.</b>El magnesio de tus suplementos o medicamentos alcanza o supera el límite recomendado para fuentes no alimentarias.</div></div>';
+      } else {
+        h += '<div class="alert info"><span class="mk">i</span><div><b>Con lo que comes' + (suplTotal > 0 ? ' y lo que ya tomas' : '') + ' alcanzas la cantidad recomendada.</b>No parece hacer falta un suplemento. Si tienes síntomas o tomas medicamentos que aumentan las pérdidas, coméntalo en consulta.</div></div>';
+      }
+      h += '<p class="hint" style="margin-top:8px">Mejorar tu alimentación sí puedes empezarlo hoy: revisa arriba los alimentos que podrías comer más a menudo.</p></div>';
+    }
 
     // Llevarse los resultados: profesional → correo; paciente → correo y cita
     var link = enlaceFormulario({edad:edad, sexo:sexo, alim:alim, supl:suplTotal, noSabe:noSabe, total:total, req:req, m:m});
     var fecha = new Date().toLocaleDateString('es');
-    RESUMEN = [
-      "Resultados de la calculadora de magnesio · Dra. Omidres Pérez de Carvelli",
-      "Fecha: " + fecha,
-      "",
+    // Al médico se le informa la brecha frente a la RDA, no una dosis: el paciente ve el correo antes de enviarlo.
+    var sugTxt = (gap > 0 ? "Diferencia hasta la RDA: " + f0(gap) + " mg/día." : "Alcanza la RDA.") +
+      (room <= 0 ? " Mg no alimentario ≥ UL (" + UL_SUPP + " mg/día)." : "") + (renalBaja ? " Función renal disminuida." : "");
+    var fuentes = top.length ? top.slice(0, 4).map(function(x){ return x.n + " " + f0(x.mg) + " mg"; }).join("; ") : "sin aportes relevantes";
+    var mdsLinea = m.total + " de 5 (" + mdsTxt + ")" + (m.pts.length ? " — " + m.pts.map(function(p){ return p[0] + " +" + p[1]; }).join("; ") : "") + (m.incompleto ? " — función renal no informada" : "");
+    var datos = [
       "Edad y sexo: " + edad + " años · " + (sexo === "F" ? "mujer" : "hombre"),
-      "Magnesio de los alimentos (estimado): " + f0(alim) + " mg/día",
-      "Magnesio de suplementos y fármacos: " + f0(suplTotal) + " mg/día" + (noSabe ? " (más una dosis desconocida)" : ""),
-      "Recomendado para tu grupo: " + req.rda + " mg/día (requerimiento promedio: " + req.ear + " mg/día)",
-      "Resultado: " + cls,
-      "Índice de depleción de magnesio: " + m.total + " de 5 (" + mdsTxt + ")" + (m.pts.length ? " — " + m.pts.map(function(p){ return p[0] + " +" + p[1]; }).join("; ") : "") + (m.incompleto ? " — función renal no informada" : ""),
-      top.length ? "Principales fuentes: " + top.slice(0, 4).map(function(x){ return x.n + " " + f0(x.mg) + " mg"; }).join("; ") : "",
-      renalBaja ? "Suplemento: no se calcula una cantidad por la función renal; debe indicarlo tu médico."
-        : (SUG > 0 ? "Complemento orientativo: hasta " + f0(SUG) + " mg/día de magnesio elemental. Confírmalo con tu médico." : "Complemento: no hace falta para llegar a lo recomendado."),
-      "",
-      "Herramienta educativa: no diagnostica ni sustituye la consulta médica.",
-      pro ? "" : "Agenda tu consulta: " + LINK_AGENDA
-    ].filter(function(x, i, a){ return x !== "" || (i > 0 && a[i - 1] !== ""); }).join("\n");
+      "Ingesta alimentaria estimada: " + f0(alim) + " mg/día",
+      "Suplementos y fármacos con Mg: " + f0(suplTotal) + " mg/día" + (noSabe ? " (más una dosis desconocida)" : ""),
+      "Ingesta total: " + f0(total) + " mg/día = " + Math.round(total / req.ear * 100) + " % del EAR (EAR " + req.ear + " / RDA " + req.rda + " mg/día; " + req.grupo + ")",
+      "Clasificación: " + cls,
+      "Índice de depleción de magnesio (MDS): " + mdsLinea,
+      "Principales fuentes: " + fuentes,
+      sugTxt
+    ];
+    var metodo = "Método y referencias: https://dra-omidres.github.io/calculadoras/magnesio/ (cuestionario no validado, USDA SR28; IOM 1997; MDS de Fan 2021, corte > 2).";
+    var limpia = function(a){ return a.join("\n"); };
+    if (pro){
+      RESUMEN = limpia(["Resultados de la calculadora de magnesio · Dra. Omidres Pérez de Carvelli", "Fecha: " + fecha, ""].concat(datos, ["", metodo, "Herramienta educativa: no sustituye la valoración clínica."]));
+    } else {
+      RESUMEN = limpia(["Estimado/a doctor/a:", "",
+        "Le comparto mis resultados de la calculadora de magnesio para revisarlos en consulta.", "",
+        "Paciente: [NOMBRE]", "Fecha: " + fecha, ""].concat(datos, ["", metodo, "Herramienta educativa: no mide el magnesio corporal ni sustituye la valoración clínica.", "", "Gracias."]));
+    }
 
-    h += '<div class="cta"><b>' + (pro ? 'Llévate los resultados' : '¿Quieres revisar tu magnesio con criterio clínico?') + '</b>' +
-      '<p>' + (pro ? 'Recibe en tu correo el resumen de este cálculo para tu registro o para compartirlo con tu paciente.'
-                   : 'Recibe tus resultados en tu correo y, si quieres, agenda tu consulta. En consulta valoramos tu alimentación, tus medicamentos, tu función renal y, si hace falta, otras pruebas además del magnesio en sangre.') + '</p>' +
-      (link ? '' : '<label class="f" style="margin-top:12px;max-width:340px;color:inherit">Tu correo <span class="u" style="color:inherit;opacity:.8">(se abrirá tu aplicación de correo)</span><input type="email" id="mail-to" autocomplete="email" placeholder="nombre@correo.com"></label>') +
-      '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">' +
-      (link ? '<a class="btn" style="width:auto;margin:0" href="' + esc(link) + '" target="_blank" rel="noopener">' + (pro ? 'Recibir los resultados en mi correo' : 'Recibir mis resultados en mi correo') + '</a>'
-            : '<button class="btn" type="button" id="mail-btn" style="width:auto;margin:0">' + (pro ? 'Recibir los resultados en mi correo' : 'Recibir mis resultados en mi correo') + '</button>') +
-      (pro ? '' : '<a class="btn" style="width:auto;margin:0;background:var(--surface);color:var(--ink)" href="' + LINK_AGENDA + '" target="_blank" rel="noopener">Agendar consulta</a>') +
-      '</div>' +
-      '<p style="font-size:.82rem;opacity:.85;margin-top:10px">' + (link ? 'Se abrirá un formulario con tus resultados ya escritos: completa tu correo y pulsa «Enviar» para recibir una copia. Solo se envían si pulsas «Enviar».'
-            : 'Tus resultados solo salen de este dispositivo si tú envías el correo.') +
-      (LINK_PRIVACIDAD ? ' <a href="' + esc(LINK_PRIVACIDAD) + '" target="_blank" rel="noopener" style="color:inherit">Política de privacidad</a>.' : '') + '</p></div>';
+    var campo = function(id, etq, ph, tipo){ return '<label class="f" style="color:inherit;flex:1 1 220px">' + etq + '<input type="' + tipo + '" id="' + id + '" placeholder="' + ph + '"></label>'; };
+    if (pro){
+      h += '<div class="cta"><b>Llévate los resultados</b><p>Recibe en tu correo el resumen técnico de este cálculo.</p>' +
+        (link ? '' : '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">' + campo("mail-to", "Tu correo", "nombre@correo.com", "email") + '</div>') +
+        '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">' +
+        (link ? '<a class="btn" style="width:auto;margin:0" href="' + esc(link) + '" target="_blank" rel="noopener">Recibir los resultados en mi correo</a>'
+              : '<button class="btn" type="button" id="mail-btn" style="width:auto;margin:0">Recibir los resultados en mi correo</button>') +
+        '</div></div>';
+    } else {
+      h += '<div class="cta"><b>Revisa estos resultados con un médico</b>' +
+        '<p>Para saber si necesitas un suplemento, cuál y en qué dosis, lo indicado es que te valore un médico. Puedes enviarle tus resultados a tu médico o agendar una consulta con la Dra. Omidres.</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">' + campo("mail-name", "Tu nombre", "Nombre y apellido", "text") + campo("mail-to", "Correo de tu médico", "medico@correo.com", "email") + '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">' +
+        '<button class="btn" type="button" id="mail-btn" style="width:auto;margin:0">Enviar mis resultados a mi médico</button>' +
+        '<a class="btn" style="width:auto;margin:0;background:var(--surface);color:var(--ink)" href="' + LINK_AGENDA + '" target="_blank" rel="noopener">Agendar consulta con la Dra. Omidres</a>' +
+        '</div><p style="font-size:.82rem;opacity:.85;margin-top:10px">Se abrirá tu aplicación de correo con el resumen listo; podrás revisarlo antes de enviarlo. Tus resultados solo salen de este dispositivo si tú envías el correo.</p></div>';
+    }
 
     $("#out").innerHTML = h;
     etiqueta();
@@ -710,8 +737,11 @@ body[data-mode="pro"] .pro-inline{display:inline}
   $("#out").addEventListener("click", function(e){
     if (e.target.id !== "mail-btn") return;
     var to = ($("#mail-to").value || "").trim();
+    var nom = $("#mail-name") ? ($("#mail-name").value || "").trim() : "";
+    var body = RESUMEN.replace("[NOMBRE]", nom || "(sin indicar)");
+    var asunto = $("#mail-name") ? "Resultados de la calculadora de magnesio" + (nom ? " · " + nom : "") : "Resultados de la calculadora de magnesio";
     window.location.href = "mailto:" + encodeURIComponent(to).replace(/%40/g, "@") +
-      "?subject=" + encodeURIComponent("Mis resultados de la calculadora de magnesio") + "&body=" + encodeURIComponent(RESUMEN);
+      "?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(body);
   });
   $("#f").addEventListener("submit", calcula);
   $("#demo").addEventListener("click", function(){

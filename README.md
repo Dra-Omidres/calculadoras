@@ -35,19 +35,18 @@ Estima a qué perfil de conducta alimentaria se aproxima el patrón del paciente
 - **Bloqueos de seguridad.** Señala cuándo el paciente no debe iniciar cambios por
   su cuenta, con criterios distintos para alimentación y para ejercicio.
 
-### Llevarse los resultados
+### Cierre del resultado y prevención de la automedicación
 
-Al final del resultado:
-
-- **Modo paciente:** botones *Recibir mis resultados en mi correo* y *Agendar consulta*.
-- **Modo profesional:** botón *Recibir los resultados en mi correo*.
-
-Mientras `FORM.url` esté vacío, el botón de correo abre la aplicación de correo
-de la persona con un resumen listo para enviárselo (enlace `mailto:`); los datos
-no llegan a la consulta. Cuando se configure `FORM.url` (inicio del script de
-`magnesio/index.html`), el botón abre el formulario de Google prellenado; activar
-en Google Forms el envío de una copia de las respuestas a quien responde. Tras
-cambiar la configuración, ejecutar `python3 tools/build-paciente.py`.
+- **Modo paciente:** no muestra dosis de suplemento, tabla de sales ni lector de
+  etiquetas. Si la ingesta no alcanza la RDA, indica que podría necesitar un
+  suplemento y que el tipo y la dosis debe indicarlos un médico. Botones *Enviar
+  mis resultados a mi médico* (abre la aplicación de correo de la persona con un
+  resumen técnico dirigido al médico; informa la diferencia hasta la RDA, no una
+  dosis) y *Agendar consulta con la Dra. Omidres*.
+- **Modo profesional:** suplementación orientativa por tipo de sal, lector de
+  etiquetas y botón *Recibir los resultados en mi correo*. Si se configura
+  `FORM.url` (inicio del script), ese botón abre el formulario de Google
+  prellenado. Tras cambiar la configuración, ejecutar `python3 tools/build-paciente.py`.
 
 El campo `codigo` guarda la frecuencia de cada alimento como `v1:` seguido de un
 dígito por alimento, en el orden de `magnesio/codigo-alimentos.csv`
@@ -80,7 +79,7 @@ estima dos cosas que sí pueden estimarse:
   de 0 a 5 puntos: diurético, inhibidor de bomba de protones, alcohol y eGFR.
   Se considera elevado un MDS > 2 (≥ 3), el punto de corte usado para indicar
   déficit y la agrupación más frecuente (Costello, Fan y Wallace, *Nutrients* 2025).
-- **Suplementación orientativa.** Sugiere un complemento de magnesio
+- **Suplementación orientativa (solo modo profesional).** Sugiere un complemento de magnesio
   elemental hasta la RDA, sin superar el UL de 350 mg/día de suplementos, y
   calcula cuántos mg de cada sal (citrato, glicinato, cloruro, lactato, malato,
   taurato, L-treonato, gluconato, carbonato, óxido) aportan esa cantidad. El %
